@@ -19,7 +19,7 @@ quit_flag = 0;
 %% Plot the first dot and then start the timer function
 h = handles.image_axes;
 I = imread('cave_pic.jpg');
-axes(h)
+axes(h) % Force the GUI axes to be selected
 imshow(I)
 drawnow
 start(timerobj)
