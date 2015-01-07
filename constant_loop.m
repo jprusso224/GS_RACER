@@ -13,7 +13,7 @@ delete(timerfindall)
 % seconds. Its timer function simply updates the mission log with the
 % current time. This could be changed to something like requesting a status
 % and then updating the appropriate GUI fields.
-[handles,color1,color2,timerobj] = GS_gui_test();
+[handles,color1,color2,timerobj] = GS_gui();
 quit_flag = 0;
 
 %% Plot the first dot and then start the timer function

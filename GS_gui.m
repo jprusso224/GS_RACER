@@ -1,35 +1,35 @@
-function varargout = GS_gui_test(varargin)
-% GS_GUI_TEST MATLAB code for GS_gui_test.fig
-%      GS_GUI_TEST, by itself, creates a new GS_GUI_TEST or raises the existing
+function varargout = GS_gui(varargin)
+% GS_GUI MATLAB code for GS_gui.fig
+%      GS_GUI, by itself, creates a new GS_GUI or raises the existing
 %      singleton*.
 %
-%      H = GS_GUI_TEST returns the handle to a new GS_GUI_TEST or the handle to
+%      H = GS_GUI returns the handle to a new GS_GUI or the handle to
 %      the existing singleton*.
 %
-%      GS_GUI_TEST('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in GS_GUI_TEST.M with the given input arguments.
+%      GS_GUI('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in GS_GUI.M with the given input arguments.
 %
-%      GS_GUI_TEST('Property','Value',...) creates a new GS_GUI_TEST or raises the
+%      GS_GUI('Property','Value',...) creates a new GS_GUI or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before GS_gui_test_OpeningFcn gets called.  An
+%      applied to the GUI before GS_gui_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to GS_gui_test_OpeningFcn via varargin.
+%      stop.  All inputs are passed to GS_gui_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help GS_gui_test
+% Edit the above text to modify the response to help GS_gui
 
-% Last Modified by GUIDE v2.5 13-Dec-2014 14:45:51
+% Last Modified by GUIDE v2.5 07-Jan-2015 15:18:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @GS_gui_test_OpeningFcn, ...
-                   'gui_OutputFcn',  @GS_gui_test_OutputFcn, ...
+                   'gui_OpeningFcn', @GS_gui_OpeningFcn, ...
+                   'gui_OutputFcn',  @GS_gui_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -44,15 +44,15 @@ end
 % End initialization code - DO NOT EDIT
 
 
-% --- Executes just before GS_gui_test is made visible.
-function varargout = GS_gui_test_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before GS_gui is made visible.
+function varargout = GS_gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to GS_gui_test (see VARARGIN)
+% varargin   command line arguments to GS_gui (see VARARGIN)
 
-% Choose default command line output for GS_gui_test
+% Choose default command line output for GS_gui
 handles.output = hObject;
 
 % Update handles structure
@@ -71,12 +71,12 @@ end
 set(handles.Mission_Log,'String',newstr);
 set(handles.Mission_Log,'ListboxTop',size(newstr,1));
 
-% UIWAIT makes GS_gui_test wait for user response (see UIRESUME)
+% UIWAIT makes GS_gui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = GS_gui_test_OutputFcn(hObject, eventdata, handles) 
+function varargout = GS_gui_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
