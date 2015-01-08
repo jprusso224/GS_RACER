@@ -19,6 +19,10 @@ function PassFail_flag = send_command_Callback(cmd_str,handles)
 %    - Added some commenting, removed some obsolete command cases, and made
 %    sure every current command case is handled. Also added some
 %    error-handling for malformed input.
+% Update 2: 1/8/15 by John Russo
+%    - This function now sends the command string to the serial port which
+%    has been declared a global variable and is shared with the main loop.
+%
 % =========================================================================
 PassFail_flag = 0;
 global gsSerialBuffer
