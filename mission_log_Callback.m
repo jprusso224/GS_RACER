@@ -11,6 +11,10 @@ function mission_log_Callback(handles,log_entry)
 %              log. This must be a column cell array {Nx1}
 % Outputs:
 %  NONE
+%
+% UPDATE LOG ==============================================================
+% Creation: ~12/5/2014 by Thomas Green
+% Update 1:
 % =========================================================================
 
 % Get the current mission log cell array ==================================
