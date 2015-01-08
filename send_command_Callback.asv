@@ -41,7 +41,7 @@ switch cmd_str(2) % Check what type of command string it is
         log_entry{1,1} = ['Sent CAPTURE IMAGE command: ' cmd_str];
         log_entry{2,1} = 'Awaiting reply...';
         mission_log_Callback(handles,log_entry)
-       % pause(30) % Send the capture image command
+        pause(30) % Send the capture image command
         fprintf(gsSerialBuffer,cmd_str);
         axes(handles.image_axes)
         imshow('cave_pic.jpg')
@@ -61,7 +61,7 @@ switch cmd_str(2) % Check what type of command string it is
                 dur = 500/10;
         end
         mission_log_Callback(handles,log_entry)
-        %%pause(dur) % Send the rappel command
+        pause(dur) % Send the rappel command
         fprintf(gsSerialBuffer,cmd_str);
         PassFail_flag = 1;
         
@@ -78,14 +78,14 @@ switch cmd_str(2) % Check what type of command string it is
         end
         dur = abs(str2double(cmd_str(4:7)))/0.1;
         mission_log_Callback(handles,log_entry)
-       % pause(dur) % Send the driving command
+        pause(dur) % Send the driving command
         fprintf(gsSerialBuffer,cmd_str);
         PassFail_flag = 1;
         
     case 'S' % Status update request ======================================
         if strcmp(cmd_str,sprintf('$SR\n'))
             log_entry = ['Sent STATUS REQUEST: ' cmd_str];
-         %   pause(1) % Send the status request
+            pause(1) % Send the status request
             fprintf(gsSerialBuffer,cmd_str);
             PassFail_flag = 1;
         else

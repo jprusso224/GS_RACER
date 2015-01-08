@@ -43,7 +43,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before GS_gui is made visible.
 function varargout = GS_gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
