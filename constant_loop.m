@@ -35,9 +35,11 @@ while 1
         end_mission_Callback(handles,quit_flag)
         break
     end
-    
+  
 end
+
 fclose(gsSerialBuffer);
+
 stop(timerobj)
 delete(timerfindall)
 % close(handles.figure1)

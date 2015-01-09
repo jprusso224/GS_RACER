@@ -22,6 +22,10 @@ function PassFail_flag = send_command_Callback(cmd_str,handles)
 % Update 2: 1/8/15 by John Russo
 %    - This function now sends the command string to the serial port which
 %    has been declared a global variable and is shared with the main loop.
+% Update 3: 1/9/15 by John Russo
+%    - the waitForAcknowledgement function is called after every command
+%    sent and the pass/fail flag is set based on the result of the function
+%    call.
 %
 % =========================================================================
 PassFail_flag = 0;
@@ -46,11 +50,13 @@ switch cmd_str(2) % Check what type of command string it is
         log_entry{2,1} = 'Awaiting reply...';
         mission_log_Callback(handles,log_entry)
        % pause(30) % Send the capture image command
+    %    fopen(gsSerialBuffer);
         fprintf(gsSerialBuffer,cmd_str);
+     %   fclose(gsSerialBuffer);
         axes(handles.image_axes)
         imshow('cave_pic.jpg')
         text(10,10,datestr(now),'Color','w','FontName','Courier New')
-        PassFail_flag = 1;
+        PassFail_flag = waitForAcknowledgement(cmd_str(2));
         
     case 'R' % Rappelling command =========================================
         switch cmd_str(3) % Check what type of rappelling we're doing
@@ -65,9 +71,9 @@ switch cmd_str(2) % Check what type of command string it is
                 dur = 500/10;
         end
         mission_log_Callback(handles,log_entry)
-        %%pause(dur) % Send the rappel command
+        % Send the rappel command
         fprintf(gsSerialBuffer,cmd_str);
-        PassFail_flag = 1;
+        PassFail_flag = waitForAcknowledgement(cmd_str(2));
         
     case 'D' % Driving command ============================================
         switch cmd_str(3) % Check what type of driving we're doing
@@ -82,16 +88,16 @@ switch cmd_str(2) % Check what type of command string it is
         end
         dur = abs(str2double(cmd_str(4:7)))/0.1;
         mission_log_Callback(handles,log_entry)
-       % pause(dur) % Send the driving command
+        % Send the driving command
         fprintf(gsSerialBuffer,cmd_str);
-        PassFail_flag = 1;
+        PassFail_flag = waitForAcknowledgement(cmd_str(2));
         
     case 'S' % Status update request ======================================
         if strcmp(cmd_str,sprintf('$SR\n'))
             log_entry = ['Sent STATUS REQUEST: ' cmd_str];
-         %   pause(1) % Send the status request
+            % Send the status request
             fprintf(gsSerialBuffer,cmd_str);
-            PassFail_flag = 1;
+            PassFail_flag =  waitForAcknowledgement(cmd_str(2));
         else
             log_entry = ['Unknown STATUS REQUEST string: ' cmd_str];
         end
