@@ -1,35 +1,35 @@
-function varargout = GS_gui_test(varargin)
-% GS_GUI_TEST MATLAB code for GS_gui_test.fig
-%      GS_GUI_TEST, by itself, creates a new GS_GUI_TEST or raises the existing
+function varargout = GS_gui(varargin)
+% GS_GUI MATLAB code for GS_gui.fig
+%      GS_GUI, by itself, creates a new GS_GUI or raises the existing
 %      singleton*.
 %
-%      H = GS_GUI_TEST returns the handle to a new GS_GUI_TEST or the handle to
+%      H = GS_GUI returns the handle to a new GS_GUI or the handle to
 %      the existing singleton*.
 %
-%      GS_GUI_TEST('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in GS_GUI_TEST.M with the given input arguments.
+%      GS_GUI('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in GS_GUI.M with the given input arguments.
 %
-%      GS_GUI_TEST('Property','Value',...) creates a new GS_GUI_TEST or raises the
+%      GS_GUI('Property','Value',...) creates a new GS_GUI or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before GS_gui_test_OpeningFcn gets called.  An
+%      applied to the GUI before GS_gui_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to GS_gui_test_OpeningFcn via varargin.
+%      stop.  All inputs are passed to GS_gui_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help GS_gui_test
+% Edit the above text to modify the response to help GS_gui
 
-% Last Modified by GUIDE v2.5 13-Dec-2014 14:45:51
+% Last Modified by GUIDE v2.5 07-Jan-2015 16:24:09
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @GS_gui_test_OpeningFcn, ...
-                   'gui_OutputFcn',  @GS_gui_test_OutputFcn, ...
+                   'gui_OpeningFcn', @GS_gui_OpeningFcn, ...
+                   'gui_OutputFcn',  @GS_gui_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -43,16 +43,15 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
-% --- Executes just before GS_gui_test is made visible.
-function varargout = GS_gui_test_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before GS_gui is made visible.
+function varargout = GS_gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to GS_gui_test (see VARARGIN)
+% varargin   command line arguments to GS_gui (see VARARGIN)
 
-% Choose default command line output for GS_gui_test
+% Choose default command line output for GS_gui
 handles.output = hObject;
 
 % Update handles structure
@@ -60,8 +59,8 @@ guidata(hObject, handles);
 
 % Reset the mission log ===================================================
 str = cellstr(get(handles.Mission_Log,'String'));
-mission_start_str = ['=========================== Mission Start: ' ...
-    datestr(now) ' ==========================='];
+mission_start_str = ['===================================== Mission Start: ' ...
+    datestr(now) ' ======================================='];
 if size(str,1) > 1
     newstr = str;
     newstr{end+1,1} = mission_start_str;
@@ -71,58 +70,28 @@ end
 set(handles.Mission_Log,'String',newstr);
 set(handles.Mission_Log,'ListboxTop',size(newstr,1));
 
-% UIWAIT makes GS_gui_test wait for user response (see UIRESUME)
+% UIWAIT makes GS_gui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = GS_gui_test_OutputFcn(hObject, eventdata, handles) 
+function varargout = GS_gui_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-color1 = [1 0 0];
-color2 = [0 0 1];
 varargout{1,1} = handles;
-varargout{2,1} = color1;
-varargout{3,1} = color2;
 
 a = timer;
+timer_period = 10;
 set(a,'executionMode','fixedRate')
-set(a,'TimerFcn','request_status_Callback(handles)','BusyMode','queue','Period',30)
+set(a,'TimerFcn','request_status_Callback(handles)','BusyMode','queue','Period',timer_period,'StartDelay',timer_period,'Tag','heartbeat_timer')
 % start(a)
 
-varargout{4,1} = a;
+varargout{2,1} = a;
 
-
-% --- Executes on button press in change_color_button.
-function change_color_button_Callback(hObject, eventdata, handles)
-% hObject    handle to change_color_button (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-temp = get(handles.image_axes,'Children');
-curr_color = get(temp,'Color');
-try
-    color1 = evalin('base','color1');
-    color2 = evalin('base','color2');
-catch
-    color1 = [1 0 0];
-    color2 = [0 0 1];
-end
-
-pause(4)
-
-if sum(curr_color == color1) == 3
-    set(temp,'Color',color2)
-    log_entry = 'Changed colors from RED to BLUE';
-else
-    set(temp,'Color',color1)
-    log_entry = 'Changed colors from BLUE to RED';
-end
-drawnow
-mission_log_Callback(handles,log_entry)
 
 % --- Executes on selection change in Mission_Log.
 function Mission_Log_Callback(hObject, eventdata, handles)
@@ -191,6 +160,16 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
         end
         % Format the command string and make the log entry ================
         cmd_str = sprintf('$D%c%03d\n',drive_dir,drive_dist_m*100);
+    case 'turn_option'
+        % Get the turning angle and determine direction ===================
+        turn_ang_deg = str2double(get(handles.turn_angle_deg,'String'));
+        if turn_ang_deg <= 0 % A negative turn is left/counter-clockwise
+            turn_dir = 'L';
+        else
+            turn_dir = 'R';
+        end
+        % Format the command string and make the log entry ================
+        cmd_str = sprintf('$D%c%03d\n',turn_dir,turn_ang_deg);
     case 'capture_image'
         % Get the user-input pan and tilt angles ==========================
         pan_angle_deg = str2double(get(handles.pan_angle_deg,'String'));
@@ -202,8 +181,16 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
         end
         % Construct the command string and "capture" the image ============
         cmd_str = sprintf('$I%c%02d%02d\n',pan_angle_sign,pan_angle_deg,tilt_angle_deg);
+    case 'return_option'
+        % Construct the command string and make the log entry =============
+        cmd_str = sprintf('$RU\n'); % This is for auto-retract
+        
+%     case 'deploy_option'
+% This option may or may not be unnecessary. Must talk w/ John about what
+% would go into this. -- Thomas 1/7/2015
+        
     otherwise % Somehow no command option was selected
-        log_entry = '!!SEND COMMAND failed due to no valid command option being selected!!';
+        log_entry = '!!SEND COMMAND failed due to a non-implemented command option being selected!!';
         mission_log_Callback(handles,log_entry);
         cmd_str = '';
 end
@@ -254,7 +241,6 @@ end
 set(hObject,'String','0.0')
 
 
-
 function drive_distance_m_Callback(hObject, eventdata, handles)
 % hObject    handle to drive_distance_m (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -294,7 +280,6 @@ end
 set(hObject,'String','0.0')
 
 
-
 function pan_angle_deg_Callback(hObject, eventdata, handles)
 % hObject    handle to pan_angle_deg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -303,6 +288,21 @@ function pan_angle_deg_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of pan_angle_deg as text
 %        str2double(get(hObject,'String')) returns contents of pan_angle_deg as a double
 
+% Get the input pan angle in degrees ======================================
+pan_angle = str2double(get(hObject,'String'));
+% Check if the entry was numeric or less than zero
+if isnan(pan_angle) || pan_angle < 0
+    pan_angle = '0'; % If it wasn't then just set it to zero
+elseif pan_angle > 90
+    % If the input was larger than 90 degrees then bound it
+    pan_angle = '90';
+else
+    % Otherwise just round it to degree accuracy
+    pan_angle = num2str(ceil(pan_angle));
+end
+
+% Update the drive distance ===============================================
+set(hObject,'String',pan_angle)
 
 % --- Executes during object creation, after setting all properties.
 function pan_angle_deg_CreateFcn(hObject, eventdata, handles)
@@ -337,7 +337,7 @@ elseif tilt_angle > 90
     tilt_angle = '90';
 else
     % Otherwise just round it to degree accuracy
-    tilt_angle = sprintf('%2d',tilt_angle);
+    tilt_angle = num2str(ceil(tilt_angle));
 end
 
 % Update the drive distance ===============================================
@@ -358,19 +358,33 @@ end
 set(hObject,'String','0')
 
 
-
-function edit5_Callback(hObject, eventdata, handles)
-% hObject    handle to edit5 (see GCBO)
+function turn_angle_deg_Callback(hObject, eventdata, handles)
+% hObject    handle to turn_angle_deg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit5 as text
-%        str2double(get(hObject,'String')) returns contents of edit5 as a double
+% Hints: get(hObject,'String') returns contents of turn_angle_deg as text
+%        str2double(get(hObject,'String')) returns contents of turn_angle_deg as a double
 
+% Get the input turn angle in degrees =====================================
+turn_angle = str2double(get(hObject,'String'));
+% Check if the entry was numeric
+if isnan(turn_angle)
+    turn_angle = '0'; % If it wasn't then just set it to zero
+elseif abs(turn_angle) > 10
+    % If the input was larger than 10 degrees then bound it
+    turn_angle = sprintf('%2.f',turn_angle/abs(turn_angle)*10);
+else
+    % Otherwise just round it to degree accuracy
+    turn_angle = num2str(ceil(turn_angle));
+end
+
+% Update the drive distance ===============================================
+set(hObject,'String',turn_angle)
 
 % --- Executes during object creation, after setting all properties.
-function edit5_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit5 (see GCBO)
+function turn_angle_deg_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to turn_angle_deg (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -379,3 +393,5 @@ function edit5_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+set(hObject,'String','0')
