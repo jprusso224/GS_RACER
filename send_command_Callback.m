@@ -26,20 +26,14 @@ function PassFail_flag = send_command_Callback(cmd_str,handles)
 %    - the waitForAcknowledgement function is called after every command
 %    sent and the pass/fail flag is set based on the result of the function
 %    call.
-%
+% Update 4: 1/12/15 by Thomas Green
+%    - Removed some erroneous lines from before the proper usage of
+%    'timerfind(' was implemented
 % =========================================================================
 PassFail_flag = 0;
 global gsSerialBuffer
 
-% % See if we have multiple timer objects going =============================
-% if length(timerfindall) > 1
-%     log_entry = {'!!!!!!ERROR!!!!!! Multiple timer objects were detected when a command was going to be sent.';...
-%         'To avoid complications that could be caused by stopping these objects the GUI will now abort.'};
-%     mission_log_Callback(handles,log_entry)
-%     evalin('base','quit_flag=1');
-%     return
-% end
-% % Otherwise, stop them until the command is processed
+% Stop the heartbeat timer for the duration of the command ================
 stop(timerfind('Tag','heartbeat_timer'))
 
 % Send the command via the serial port ====================================
