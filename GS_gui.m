@@ -485,9 +485,13 @@ button = questdlg('Are you sure you would like to close the GS GUI?','Closing GS
 switch button
     case 'Yes'
         delete(hObject)
-        stop(timerfindall)
-        delete(timerfindall)
-        delete(instrfindall)
+        if ~isempty(timerfindall)
+            stop(timerfindall)
+            delete(timerfindall)
+        end
+        if ~isempty(instrfindall)
+            delete(instrfindall)
+        end
     otherwise
         % If they didn't press yes then do nothing!
 end
