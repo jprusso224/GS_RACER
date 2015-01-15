@@ -22,7 +22,7 @@ function varargout = GS_gui(varargin)
 
 % Edit the above text to modify the response to help GS_gui
 
-% Last Modified by GUIDE v2.5 07-Jan-2015 16:24:09
+% Last Modified by GUIDE v2.5 14-Jan-2015 18:04:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -395,3 +395,99 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject,'String','0')
+
+
+% --- Executes on selection change in com_port_list.
+function com_port_list_Callback(hObject, eventdata, handles)
+% hObject    handle to com_port_list (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global gsSerialBuffer serialPort
+try % Attempt to close the serial object
+    % This will throw an error if the gsSerialBuffer was never successfully
+    % opened.
+    fclose(gsSerialBuffer);
+    delete(gsSerialBuffer);
+end
+
+% Hints: contents = cellstr(get(hObject,'String')) returns com_port_list contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from com_port_list
+com_port_list = cellstr(get(hObject,'String'));
+com_port = com_port_list{get(hObject,'Value')};
+init_com_port = com_port;
+
+% Make sure the com port is still available
+available = checkSerialPort(com_port);
+if available
+    % If it is available then we can go ahead and create a new serial
+    % object for the port
+    serialPort = com_port;
+    gsSerialBuffer = serial(serialPort);
+    log_entry = ['Successfully opened serial port: ' serialPort];
+else % If it wasn't available then recreate the com port list
+    com_port_list_CreateFcn(hObject, eventdata, handles);
+    set(hObject,'Value',1)
+    com_port_list = cellstr(get(hObject,'String'));
+    com_port = com_port_list{get(hObject,'Value')};
+    serialPort = com_port;
+    % Make sure there were available ports
+    if strcmp(serialPort,'ERR')
+        log_entry = 'ERROR: The GUI was unable to successfully open any COM ports';
+    else % If there was a valid selection, then open it!
+        gsSerialBuffer = serial(serialPort);
+        log_entry = {['ERROR: Serial port: ' init_com_port ' was no longer available...'];...
+            ['Successfully opened ' serialPort ' instead!']};
+    end
+end
+
+% Update the mission log
+mission_log_Callback(handles,log_entry);
+
+
+% --- Executes during object creation, after setting all properties.
+function com_port_list_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to com_port_list (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+global serialPort
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% Get a list of available COM ports and put it in the popup-menu list
+ports = getAvailableComPorts(40);
+set(hObject,'String',ports)
+set(hObject,'Value',1)
+if strcmp(ports,'ERR')
+    % If something went wrong when trying to find valid serial ports or
+    % none were found then just throw an error and update the mission log
+    log_entry = {'ERROR: No available com ports were found!';'The GS will be unable to send and receive communications!'};
+    if ~isempty(handles)
+        % If this is the first time running the GUI then we can't update
+        % the mission log
+        mission_log_Callback(handles,log_entry);
+    end
+else
+    % Set the serial port global variable to the first item in the list
+    serialPort = ports{1};
+end
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: delete(hObject) closes the figure
+button = questdlg('Are you sure you would like to close the GS GUI?','Closing GS GUI');
+switch button
+    case 'Yes'
+        delete(hObject)
+        stop(timerfindall)
+        delete(timerfindall)
+        delete(instrfindall)
+    otherwise
+        % If they didn't press yes then do nothing!
+end

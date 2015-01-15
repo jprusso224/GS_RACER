@@ -32,8 +32,6 @@ while ~passFailFlag
         % This pause statement should vary based on the sent command. For
         % example, the image will not fill the buffer in a quarter of a
         % second. -- Thomas 1/12/2015
-        pause(0.25); % allow buffer to fill(should be more than enough)
-        input = fscanf(gsSerialBuffer,'%s'); % Get the response string
         switch commandType
             case 'S'
                 CR_status{1,1} = sprintf('$SCB014795\n'); % CR Battery in mV
@@ -41,6 +39,8 @@ while ~passFailFlag
                 MR_status{1,1} = sprintf('$SMB014622\n'); % MR Battery in mV
                 passFailFlag = 1;
             otherwise
+                pause(0.25); % allow buffer to fill(should be more than enough)
+                input = fscanf(gsSerialBuffer,'%s'); % Get the response string
                 if input(1) == '$' && input(2) == commandType && input(3) == 'P'
                     passFailFlag = 1;
                 end

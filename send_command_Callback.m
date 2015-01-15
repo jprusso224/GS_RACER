@@ -56,13 +56,10 @@ switch cmd_str(2) % Check what type of command string it is
         switch cmd_str(3) % Check what type of rappelling we're doing
             case '0' % Manual rappel
                 log_entry = ['Sent MANUAL RAPPEL command: ' cmd_str];
-                dur = abs(str2double(cmd_str(4:7)))/10;
             case 'D' % Rappel Auto
                 log_entry = ['Sent AUTO RAPPEL command: ' cmd_str];
-                dur = 500/10;
             case 'U' % Retract Auto
                 log_entry = ['Sent AUTO RETRACT command: ' cmd_str];
-                dur = 500/10;
         end
         mission_log_Callback(handles,log_entry)
         % Send the rappel command
@@ -80,7 +77,6 @@ switch cmd_str(2) % Check what type of command string it is
             case 'R' % Right-hand turn
                 log_entry = ['Sent RIGHT TURN command: ' cmd_str];
         end
-        dur = abs(str2double(cmd_str(4:7)))/0.1;
         mission_log_Callback(handles,log_entry)
         % Send the driving command
         fprintf(gsSerialBuffer,cmd_str);
