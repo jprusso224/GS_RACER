@@ -3,7 +3,6 @@ clear
 delete(timerfindall) % Delete all timer objects (hidden and not)
 delete(instrfindall) % Delete all serial objects (hidden and not)
 quit_flag = 0; % Initialize the quit_flag to 0
-serial_flag = 0; % Used to verify that serial port was found
 
 global gsSerialBuffer serialPort
 
@@ -30,7 +29,6 @@ catch err
     waitfor(errordlg(log_entry))
     mission_log_Callback(handles,log_entry)
     quit_flag = 1;
-    serial_flag = 1;
 end
     
 
@@ -57,10 +55,9 @@ end
 
 % On cleanup, the serial object must both be closed and deleted to avoid
 % clutter
-if ~serial_flag
-    fclose(gsSerialBuffer);
-    delete(gsSerialBuffer);
-end
+fclose(gsSerialBuffer);
+delete(gsSerialBuffer);
+
 stop(timerobj)
 delete(timerfindall)
 % close(handles.figure1)
