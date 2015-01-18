@@ -29,6 +29,11 @@ function PassFail_flag = send_command_Callback(cmd_str,handles)
 % Update 4: 1/12/15 by Thomas Green
 %    - Removed some erroneous lines from before the proper usage of
 %    'timerfind(' was implemented
+% Update 5: 1/17/15 by Thomas Green
+%    - Added logic to run the python script to decode a picture string that
+%    was received over the serial port. Functionality still must be added
+%    to the 'waitForAcknowledgement(' function to actually receive images
+%    over this wireless link.
 % =========================================================================
 PassFail_flag = 0;
 global gsSerialBuffer
@@ -47,10 +52,43 @@ switch cmd_str(2) % Check what type of command string it is
     %    fopen(gsSerialBuffer);
         fprintf(gsSerialBuffer,cmd_str);
      %   fclose(gsSerialBuffer);
-        axes(handles.image_axes)
-        imshow('cave_pic.jpg')
-        text(10,10,datestr(now),'Color','w','FontName','Courier New')
+%         axes(handles.image_axes)
+%         imshow('cave_pic.jpg')
+%         text(10,10,datestr(now),'Color','w','FontName','Courier New')
+        
         PassFail_flag = waitForAcknowledgement(cmd_str(2));
+        if PassFail_flag % if we were successful we must decode the image
+            
+            % Get the current time and format it into the desire image
+            % filename
+            curr_time = datestr(now);
+            curr_time(curr_time == ' ' | curr_time == ':') = '';
+            image_FileName = ['image' curr_time];
+            curr_path = pwd; % Identify current folder
+            image_Path = [curr_path '\ImageFiles\'];
+            
+            % Run the python script to decode the picture
+            command_Str = ['python "' curr_path ... 
+                '\ImageFiles\picDecode.py" ' image_FileName];
+            [status, commandOut] = system(command_Str);
+            
+            if status ~= 0 % If the decoding didn't work, let the user know
+                cla(handles.image_axes) % Clear the axes
+                error_str = ['Encountered an error while attempting to decode '...
+                    'the image file in picString.txt. Error text from python: '...
+                    commandOut];
+                waitfor(errordlg(error_str))
+            else
+                % Display the image to the user
+                I = imread([image_Path image_FileName '.jpg']);
+                axes(handles.image_axes)
+                imshow(I)
+                title(image_FileName,'FontName','Courier New','FontSize',10)
+                drawnow
+            end
+            
+        end
+            
         
     case 'R' % Rappelling command =========================================
         switch cmd_str(3) % Check what type of rappelling we're doing

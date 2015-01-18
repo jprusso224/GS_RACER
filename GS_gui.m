@@ -57,6 +57,13 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
+% Add the GUI Support Functions to the path ===============================
+cd  GUI' Support Functions\' %change to the gui function directory
+gui_dir = pwd;      % set a variable to the gui function directory
+cd ..               % change directory back to the original directory
+addpath(gui_dir);   % add the gui function directory to the matlab search 
+                    % path to here
+
 % Reset the mission log ===================================================
 str = cellstr(get(handles.Mission_Log,'String'));
 mission_start_str = ['===================================== Mission Start: ' ...

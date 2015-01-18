@@ -34,15 +34,10 @@ catch err
 end
     
 
-%% Plot a placeholder image and start the timer object ====================
-h = handles.image_axes;
-I = imread('cave_pic.jpg');
-axes(h) % Force the GUI axes to be selected
-imshow(I)
-drawnow
-
+%% Start the timer object =================================================
 start(timerobj) % This is a "heartbeat" timer that asks for the CR/MR status
 
+%% Begin the "constant loop" ==============================================
 tic
 while 1
     
