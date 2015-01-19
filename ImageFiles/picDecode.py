@@ -8,7 +8,8 @@ import sys
 # Usage:
 # In MATLAB - commandStr = 'python PATHTOSCRIPT/picDecode.py PICFILENAME';
 #             [status, commandOut] = system(commandStr);
-# 	The 'status' variable and 'commandOut' variables will be empty
+# 	The 'status' variable will be 0 if the picture is successfully decoded
+#   The 'commandOut' variable will contain error text if there was one
 #
 # =========================================================================
 

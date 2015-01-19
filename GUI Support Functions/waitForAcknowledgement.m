@@ -25,7 +25,10 @@ global gsSerialBuffer CR_status MR_status % globally shared serial port to XBee/
 passFailFlag = 0;
 CR_status = cell(2,1);
 MR_status = cell(1,1);
-while ~passFailFlag
+fullPicString = '';
+tic
+time_elapsed = toc;
+while ~passFailFlag && time_elapsed < 40
     
     % wait for serial data ================================================
     if gsSerialBuffer.BytesAvailable > 0
@@ -39,9 +42,10 @@ while ~passFailFlag
                 % file. For now, we will just replicate what is done in the
                 % "otherwise" case as that is what is done in current
                 % functionality on the Arduino.
-                pause(0.25); % allow buffer to fill(should be more than enough)
-                input = fscanf(gsSerialBuffer,'%s'); % Get the response string
-                if input(1) == '$' && input(2) == commandType && input(3) == 'P'
+                response = fscanf(gsSerialBuffer,'%s'); % Get the response string
+                fullPicString = [fullPicString response];
+                
+                if fullPicString(end-8:end) == 'ENDOFFILE';
                     passFailFlag = 1;
                 end
             case 'S'
@@ -51,15 +55,23 @@ while ~passFailFlag
                 passFailFlag = 1;
             otherwise
                 pause(0.25); % allow buffer to fill(should be more than enough)
-                input = fscanf(gsSerialBuffer,'%s'); % Get the response string
-                if input(1) == '$' && input(2) == commandType && input(3) == 'P'
+                response = fscanf(gsSerialBuffer,'%s'); % Get the response string
+                if response(1) == '$' && response(2) == commandType && response(3) == 'P'
                     passFailFlag = 1;
                 end
         end % end of switch commandType
     end % end of checking if bytes are available on serial object
     
+    time_elapsed = toc;
+    
 end % end of while ~passFailFlag
 
+% Write the fullPicString to the picString.txt file =======================
+if commandType == 'I'
+temp = fopen('ImageFiles\picString.txt','w+');
+fprintf(temp,fullPicString(3:end-9)); % Don't include the '$I' at the beginning
+fclose(temp);                         % or the 'Fin' at the end
+end
 
 end % end of function
 

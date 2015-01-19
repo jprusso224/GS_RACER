@@ -48,13 +48,7 @@ switch cmd_str(2) % Check what type of command string it is
         log_entry{1,1} = ['Sent CAPTURE IMAGE command: ' cmd_str];
         log_entry{2,1} = 'Awaiting reply...';
         mission_log_Callback(handles,log_entry)
-       % pause(30) % Send the capture image command
-    %    fopen(gsSerialBuffer);
         fprintf(gsSerialBuffer,cmd_str);
-     %   fclose(gsSerialBuffer);
-%         axes(handles.image_axes)
-%         imshow('cave_pic.jpg')
-%         text(10,10,datestr(now),'Color','w','FontName','Courier New')
         
         PassFail_flag = waitForAcknowledgement(cmd_str(2));
         if PassFail_flag % if we were successful we must decode the image

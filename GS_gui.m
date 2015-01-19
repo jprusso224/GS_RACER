@@ -92,7 +92,7 @@ function varargout = GS_gui_OutputFcn(hObject, eventdata, handles)
 varargout{1,1} = handles;
 
 a = timer;
-timer_period = 10;
+timer_period = 30;
 set(a,'executionMode','fixedRate')
 set(a,'TimerFcn','request_status_Callback(handles)','BusyMode','queue','Period',timer_period,'StartDelay',timer_period,'Tag','heartbeat_timer')
 % start(a)
@@ -430,6 +430,10 @@ if available
     % object for the port
     serialPort = com_port;
     gsSerialBuffer = serial(serialPort);
+    gsSerialBuffer.BaudRate = 115200;
+    gsSerialBuffer.InputBufferSize = 100000; % Buffer size, in bytes
+    gsSerialBuffer.Timeout = 40;
+    fopen(gsSerialBuffer);
     log_entry = ['Successfully opened serial port: ' serialPort];
 else % If it wasn't available then recreate the com port list
     com_port_list_CreateFcn(hObject, eventdata, handles);
@@ -442,6 +446,10 @@ else % If it wasn't available then recreate the com port list
         log_entry = 'ERROR: The GUI was unable to successfully open any COM ports';
     else % If there was a valid selection, then open it!
         gsSerialBuffer = serial(serialPort);
+        gsSerialBuffer.BaudRate = 115200;
+        gsSerialBuffer.InputBufferSize = 100000; % Buffer size, in bytes
+        gsSerialBuffer.Timeout = 40;
+        fopen(gsSerialBuffer);
         log_entry = {['ERROR: Serial port: ' init_com_port ' was no longer available...'];...
             ['Successfully opened ' serialPort ' instead!']};
     end

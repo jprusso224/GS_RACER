@@ -23,6 +23,9 @@ try
     % If there were no serial ports available at startup then initializing
     % the serial port will not work.
     gsSerialBuffer = serial(serialPort);
+    gsSerialBuffer.BaudRate = 115200;
+    gsSerialBuffer.InputBufferSize = 100000; % Buffer size, in bytes
+    gsSerialBuffer.Timeout = 40;
     fopen(gsSerialBuffer);
 catch err
     disp(err.message)
