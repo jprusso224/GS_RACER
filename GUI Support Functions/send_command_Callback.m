@@ -2,8 +2,9 @@ function PassFail_flag = send_command_Callback(cmd_str,handles)
 % =========================================================================
 % [PassFail_flag] = SEND_COMMAND_CALLBACK(cmd_str)
 %     This function takes a command string that was formatted within the
-%     GS_gui_test MATLAB GUI and simulates sending the command and
-%     receiving a response.
+%     GS_gui_test MATLAB GUI and sends the command through the serial port
+%     then waits for an acknowledgement to determine if the command was
+%     successfully executed.
 %
 % Inputs:
 %   cmd_str - This is a properly formatted command string with a start
@@ -34,6 +35,11 @@ function PassFail_flag = send_command_Callback(cmd_str,handles)
 %    was received over the serial port. Functionality still must be added
 %    to the 'waitForAcknowledgement(' function to actually receive images
 %    over this wireless link.
+% Update 6: 1/19/2015 by Thomas Green
+%    - Added more calls to 'mission_log_Callback(' so that more information
+%    is displayed to the user when imaging commands are sent. This must
+%    also be done with other command types but that will come when those
+%    commands actually do things other than blink LEDs on the Arduinos
 % =========================================================================
 PassFail_flag = 0;
 global gsSerialBuffer
@@ -53,13 +59,19 @@ switch cmd_str(2) % Check what type of command string it is
         PassFail_flag = waitForAcknowledgement(cmd_str(2));
         if PassFail_flag % if we were successful we must decode the image
             
-            % Get the current time and format it into the desire image
+            % Start creating the log_entry array
+            log_entry{1,1} = 'Successfully received ''ENDOFFILE'' delimeter...';
+            
+            % Get the current time and format it into the desired image
             % filename
             curr_time = datestr(now);
             curr_time(curr_time == ' ' | curr_time == ':') = '';
             image_FileName = ['image' curr_time];
             curr_path = pwd; % Identify current folder
             image_Path = [curr_path '\ImageFiles\'];
+            
+            % Tell user what the file will be called
+            log_entry{2,1} = ['Decoding text to file: ' image_FileName '.jpg ...'];
             
             % Run the python script to decode the picture
             command_Str = ['python "' curr_path ... 
@@ -72,6 +84,8 @@ switch cmd_str(2) % Check what type of command string it is
                     'the image file in picString.txt. Error text from python: '...
                     commandOut];
                 waitfor(errordlg(error_str))
+                PassFail_flag = 0; % Make sure it doesn't pass
+                log_entry{3,1} = 'Failed to decode the text into an image!!';
             else
                 % Display the image to the user
                 I = imread([image_Path image_FileName '.jpg']);
@@ -79,9 +93,15 @@ switch cmd_str(2) % Check what type of command string it is
                 imshow(I)
                 title(image_FileName,'FontName','Courier New','FontSize',10)
                 drawnow
+                log_entry{3,1} = 'Successfully displayed the image to the GUI';
             end
             
-        end
+        else
+            log_entry = 'Acknowledgement loop timed out after never receiving ''ENDOFFILE'' delimeter!!';
+        end % End of if PassFail_flag for imaging command
+        
+        % Update the user on what happened
+        mission_log_Callback(handles,log_entry)
             
         
     case 'R' % Rappelling command =========================================

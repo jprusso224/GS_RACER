@@ -19,6 +19,10 @@ function [passFailFlag] = waitForAcknowledgement(commandType)
 % Update 1: 1/12/2015 by Thomas Green
 %    - Added a case statement for different processing if it's a status
 %    request. This will also need to be done for an image.
+% Update 2: 1/19/2015 by Thomas Green
+%    - Added support for receiving images through the serial port! Further
+%    work will include adding support for comm dropouts as well as all
+%    command types.
 % =========================================================================
 global gsSerialBuffer CR_status MR_status % globally shared serial port to XBee/MR
 % globally shared status strings
@@ -32,46 +36,51 @@ while ~passFailFlag && time_elapsed < 40
     
     % wait for serial data ================================================
     if gsSerialBuffer.BytesAvailable > 0
-        % This pause statement should vary based on the sent command. For
-        % example, the image will not fill the buffer in a quarter of a
-        % second. -- Thomas 1/12/2015
         switch commandType
-            case 'I'
+            case 'I' % IMAGING COMMAND
                 % If we have an image command then we need to collect the
                 % image as a response and write it to the 'picString.txt'
-                % file. For now, we will just replicate what is done in the
-                % "otherwise" case as that is what is done in current
-                % functionality on the Arduino.
+                % file. We need to keep collecting the string until we get
+                % to the 'ENDOFFILE' delimiter at the end of the
+                % transmitted message.
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
+                
+                % Concatenate the response onto the full string
                 fullPicString = [fullPicString response];
                 
-                if fullPicString(end-8:end) == 'ENDOFFILE';
+                % Check to see if we've received the EOF delimeter. It
+                % should be noted that when using 'fscanf(' it is not
+                % possible to detect a newline character as a delimeter
+                if strcmp(fullPicString(end-8:end),'ENDOFFILE')
                     passFailFlag = 1;
                 end
-            case 'S'
+            case 'S' % STATUS REQUEST
+                % For now this functionality is not yet implemented on the
+                % MR or CR so just output simulated responses -- 1/19/15
                 CR_status{1,1} = sprintf('$SCB014795\n'); % CR Battery in mV
-                CR_status{2,1} = sprintf('$SCP362021\n'); % CR Depth and Distance in cm
+                CR_status{2,1} = sprintf('$SCP3620021\n'); % CR Depth and Distance in cm
                 MR_status{1,1} = sprintf('$SMB014622\n'); % MR Battery in mV
                 passFailFlag = 1;
             otherwise
                 pause(0.25); % allow buffer to fill(should be more than enough)
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
+                % Make sure we got back the appropriate response
                 if response(1) == '$' && response(2) == commandType && response(3) == 'P'
                     passFailFlag = 1;
                 end
         end % end of switch commandType
     end % end of checking if bytes are available on serial object
     
-    time_elapsed = toc;
+    time_elapsed = toc; % For timeout purposes
     
 end % end of while ~passFailFlag
 
 % Write the fullPicString to the picString.txt file =======================
-if commandType == 'I'
-temp = fopen('ImageFiles\picString.txt','w+');
-fprintf(temp,fullPicString(3:end-9)); % Don't include the '$I' at the beginning
-fclose(temp);                         % or the 'Fin' at the end
-end
+if commandType == 'I' && passFailFlag == 1
+picStringFile = fopen('ImageFiles\picString.txt','w+');
+fprintf(picStringFile,fullPicString(3:end-9)); % Don't include the '$I' at 
+fclose(picStringFile);                         % the beginning or the 
+end                                            % 'ENDOFFILE' at the end
 
 end % end of function
 

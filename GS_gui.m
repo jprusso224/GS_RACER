@@ -22,7 +22,7 @@ function varargout = GS_gui(varargin)
 
 % Edit the above text to modify the response to help GS_gui
 
-% Last Modified by GUIDE v2.5 14-Jan-2015 18:04:28
+% Last Modified by GUIDE v2.5 19-Jan-2015 14:36:00
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -166,7 +166,7 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
             drive_dir = 'F';
         end
         % Format the command string and make the log entry ================
-        cmd_str = sprintf('$D%c%03d\n',drive_dir,drive_dist_m*100);
+        cmd_str = sprintf('$D%c%03d\n',drive_dir,abs(drive_dist_m)*100);
     case 'turn_option'
         % Get the turning angle and determine direction ===================
         turn_ang_deg = str2double(get(handles.turn_angle_deg,'String'));
@@ -176,7 +176,7 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
             turn_dir = 'R';
         end
         % Format the command string and make the log entry ================
-        cmd_str = sprintf('$D%c%03d\n',turn_dir,turn_ang_deg);
+        cmd_str = sprintf('$D%c%03d\n',turn_dir,abs(turn_ang_deg));
     case 'capture_image'
         % Get the user-input pan and tilt angles ==========================
         pan_angle_deg = str2double(get(handles.pan_angle_deg,'String'));
@@ -201,11 +201,15 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
         mission_log_Callback(handles,log_entry);
         cmd_str = '';
 end
+
+% Now send the command ====================================================
 PassFail_flag = send_command_Callback(cmd_str,handles);
+
+% Make sure it was executed successfully
 if PassFail_flag
     mission_log_Callback(handles,'Command execution: success');
 else
-    mission_log_Callback(handles,'Command execution: FAILURE!!!');
+    mission_log_Callback(handles,'Command execution: FAILURE!!!!!!');
 end
 mission_log_Callback(handles,'Awaiting next user input...')
 
@@ -510,3 +514,25 @@ switch button
     otherwise
         % If they didn't press yes then do nothing!
 end
+
+
+% --- Executes on button press in save_Mission_Logs_Check.
+function save_Mission_Logs_Check_Callback(hObject, eventdata, handles)
+% hObject    handle to save_Mission_Logs_Check (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of save_Mission_Logs_Check
+global saveMissionLogsCheck
+saveMissionLogsCheck = get(hObject,'Value');
+
+
+% --- Executes during object creation, after setting all properties.
+function save_Mission_Logs_Check_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to save_Mission_Logs_Check (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+global saveMissionLogsCheck
+set(hObject,'Value',0)
+saveMissionLogsCheck = 0;

@@ -41,7 +41,7 @@ if PassFail_flag % Make sure it was a success
 % Process the response ====================================================
 CR_batt_mV  = str2double(CR_status{1,1}(5:10));
 CR_depth_cm = str2double(CR_status{2,1}(5: 7));
-CR_dist_cm  = str2double(CR_status{2,1}(8:10));
+CR_dist_cm  = str2double(CR_status{2,1}(8:11));
 MR_batt_mV  = str2double(MR_status{1,1}(5:10));
 
 % Update the GUI text =====================================================

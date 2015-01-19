@@ -1,5 +1,6 @@
 close all
 clear
+clearvars -global
 delete(timerfindall) % Delete all timer objects (hidden and not)
 delete(instrfindall) % Delete all serial objects (hidden and not)
 quit_flag = 0; % Initialize the quit_flag to 0

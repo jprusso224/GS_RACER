@@ -14,8 +14,14 @@ function mission_log_Callback(handles,log_entry)
 %
 % UPDATE LOG ==============================================================
 % Creation: ~12/5/2014 by Thomas Green
-% Update 1:
+% Update 1: 1/19/2015 by Thomas Green
+%    - Added functionality to save mission log information to the
+%    MissionLogs folder if the checkbox is selected on the GS GUI. It is
+%    determined if the checkbox is selected via the saveMissionLogsCheck
+%    global variable
 % =========================================================================
+
+global saveMissionLogsCheck
 
 % Get the current mission log cell array ==================================
 str = cellstr(get(handles.Mission_Log,'String'));
@@ -45,3 +51,20 @@ set(handles.Mission_Log,'String',str);
 % Set the list box to be focused at the bottom
 set(handles.Mission_Log,'ListboxTop',size(str,1));
 drawnow
+
+% Save the mission log to a file if it is desired =========================
+if saveMissionLogsCheck
+    % Find the filename to save to
+    start_row = str{1};
+    start_row = start_row(start_row ~= '=');
+    filename = start_row(17:end-1);
+    filename(filename == ' ') = '_';
+    filename(filename == ':') = '';
+    filename = [filename '.txt'];
+    
+    missionLogFile = fopen(['MissionLogs\' filename],'w+');
+    for ii = 1:length(str)
+        fprintf(missionLogFile,'%s\n',str{ii});
+    end
+    fclose(missionLogFile);
+end
