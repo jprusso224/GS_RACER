@@ -226,9 +226,9 @@ rappel_dist = str2double(get(hObject,'String'));
 % Check if the entry was numeric
 if isnan(rappel_dist)
     rappel_dist = '0.0'; % If it wasn't then just set it to zero
-elseif abs(rappel_dist) > 1
-    % If the input was larger than 1m then bound it
-    rappel_dist = sprintf('%1.1f',rappel_dist/abs(rappel_dist));
+elseif abs(rappel_dist) > 5
+    % If the input was larger than 5m then bound it
+    rappel_dist = sprintf('%1.1f',5*rappel_dist/abs(rappel_dist));
 else
     % Otherwise just round it to centimeter accuracy
     rappel_dist = sprintf('%1.2f',rappel_dist);

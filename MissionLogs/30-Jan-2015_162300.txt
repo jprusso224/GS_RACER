@@ -1,0 +1,21 @@
+===================================== Mission Start: 30-Jan-2015 16:23:00 =======================================
+16:23:04 - Sent CAPTURE IMAGE command: $I+0000
+
+16:23:04 - Awaiting reply...
+16:23:33 - Successfully received 'ENDOFFILE' delimeter...
+16:23:33 - Decoding text to file: image30-Jan-2015162333.jpg ...
+16:23:33 - Successfully displayed the image to the GUI
+16:23:33 - Command execution: success
+16:23:33 - Awaiting next user input...
+16:24:06 - Sent STATUS REQUEST: $SR
+
+16:24:06 - Received CR & MR Statuses:
+16:24:06 - MR Battery: 97%
+16:24:06 - CR Battery: 99%
+16:24:06 - Depth: 3.62 m
+16:24:06 - Distance Travelled: 0.21 m
+16:24:06 - NOTE: THESE WERE SIMULATED STATUSES!
+16:24:17 - ======================================================================================================
+16:24:17 - =========================!!!!!! MISSION ABORTED: 30-Jan-2015 16:24:17 !!!!!!==========================
+16:24:17 - ======================================================================================================
+16:31:01 - !!SEND COMMAND failed due to a non-implemented command option being selected!!

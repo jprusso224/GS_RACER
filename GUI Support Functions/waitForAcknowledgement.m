@@ -32,7 +32,7 @@ MR_status = cell(1,1);
 fullPicString = '';
 tic
 time_elapsed = toc;
-while ~passFailFlag && time_elapsed < 40
+while ~passFailFlag && time_elapsed < 2000
     
     % wait for serial data ================================================
     if gsSerialBuffer.BytesAvailable > 0
@@ -54,6 +54,19 @@ while ~passFailFlag && time_elapsed < 40
                 if strcmp(fullPicString(end-8:end),'ENDOFFILE')
                     passFailFlag = 1;
                 end
+            case 'R' % RAPPELLING COMMAND
+                
+                response = fscanf(gsSerialBuffer,'%s'); % Get the response string
+                fprintf('%.2f s: %s\n',time_elapsed,response)
+                
+                % See if we got the 'Pass' response
+                if ~isempty(response) && response(1) == '$' && response(2) == commandType && response(3) == 'P'
+                    passFailFlag = 1;
+                end
+                if strcmp(response,'Yadonegoofed$RP')
+                    passFailFlag = 1;
+                end
+                
             case 'S' % STATUS REQUEST
                 % For now this functionality is not yet implemented on the
                 % MR or CR so just output simulated responses -- 1/19/15
