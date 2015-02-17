@@ -77,6 +77,7 @@ switch cmd_str(2) % Check what type of command string it is
             command_Str = ['python "' curr_path ... 
                 '\ImageFiles\picDecode.py" ' image_FileName];
             [status, commandOut] = system(command_Str);
+            disp(commandOut)
             
             if status ~= 0 % If the decoding didn't work, let the user know
                 cla(handles.image_axes) % Clear the axes

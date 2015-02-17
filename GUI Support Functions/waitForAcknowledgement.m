@@ -32,11 +32,35 @@ MR_status = cell(1,1);
 fullPicString = '';
 tic
 time_elapsed = toc;
-while ~passFailFlag && time_elapsed < 2000
+
+% Determine the proper timeout duration ===================================
+switch commandType
+    case 'I'
+        timeout_dur = 60;   % seconds
+    case 'R'
+        timeout_dur = 2000; % seconds
+    case 'S'
+        timeout_dur = 10;   % seconds
+    case 'D'
+        timeout_dur = 30;   % seconds
+    otherwise
+        timeout_dur = 30;   % seconds
+end
+        
+while ~passFailFlag && time_elapsed < timeout_dur
     
     % wait for serial data ================================================
     if gsSerialBuffer.BytesAvailable > 0
         switch commandType
+            case 'D' % DRIVING COMMAND
+                response = fscanf(gsSerialBuffer,'%s'); % Get the response string
+                fprintf('%.2f s: %s\n',time_elapsed,response)
+                
+                % Make sure we got back the appropriate response
+                if length(response) >= 3 && strcmp(response(end-2:end),'$DP')
+                    passFailFlag = 1;
+                end
+                
             case 'I' % IMAGING COMMAND
                 % If we have an image command then we need to collect the
                 % image as a response and write it to the 'picString.txt'
@@ -51,8 +75,10 @@ while ~passFailFlag && time_elapsed < 2000
                 % Check to see if we've received the EOF delimeter. It
                 % should be noted that when using 'fscanf(' it is not
                 % possible to detect a newline character as a delimeter
-                if strcmp(fullPicString(end-8:end),'ENDOFFILE')
-                    passFailFlag = 1;
+                if length(fullPicString) > 10
+                    if strcmp(fullPicString(end-8:end),'ENDOFFILE')
+                        passFailFlag = 1;
+                    end
                 end
             case 'R' % RAPPELLING COMMAND
                 

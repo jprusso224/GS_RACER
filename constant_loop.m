@@ -27,6 +27,7 @@ try
     gsSerialBuffer.BaudRate = 115200;
     gsSerialBuffer.InputBufferSize = 100000; % Buffer size, in bytes
     gsSerialBuffer.Timeout = 40;
+%     gsSerialBuffer.Terminator = 10;
     fopen(gsSerialBuffer);
 catch err
     disp(err.message)

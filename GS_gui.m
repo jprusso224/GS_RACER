@@ -499,11 +499,18 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+global gsSerialBuffer
 % Hint: delete(hObject) closes the figure
 button = questdlg('Are you sure you would like to close the GS GUI?','Closing GS GUI');
 switch button
     case 'Yes'
         delete(hObject)
+        
+        try
+        fclose(gsSerialBuffer);
+        delete(gsSerialBuffer);
+        end
+        
         if ~isempty(timerfindall)
             stop(timerfindall)
             delete(timerfindall)
