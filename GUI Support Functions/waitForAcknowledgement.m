@@ -23,6 +23,11 @@ function [passFailFlag] = waitForAcknowledgement(commandType)
 %    - Added support for receiving images through the serial port! Further
 %    work will include adding support for comm dropouts as well as all
 %    command types.
+% Update 3: 2/22/2015 by Thomas Green
+%    - There have been miscellaneous updates over the past couple weeks but
+%    the major change is to have individual timeouts for each different
+%    command type. Also adding functionality to the rappelling command to
+%    detect if a rappelling failure was reported.
 % =========================================================================
 global gsSerialBuffer CR_status MR_status % globally shared serial port to XBee/MR
 % globally shared status strings
@@ -38,7 +43,7 @@ switch commandType
     case 'I'
         timeout_dur = 60;   % seconds
     case 'R'
-        timeout_dur = 2000; % seconds
+        timeout_dur = 100; % seconds
     case 'S'
         timeout_dur = 10;   % seconds
     case 'D'
@@ -86,20 +91,25 @@ while ~passFailFlag && time_elapsed < timeout_dur
                 fprintf('%.2f s: %s\n',time_elapsed,response)
                 
                 % See if we got the 'Pass' response
-                if ~isempty(response) && response(1) == '$' && response(2) == commandType && response(3) == 'P'
+                if ~isempty(response) && strcmp(response,'$R0P')
                     passFailFlag = 1;
-                end
-                if strcmp(response,'Yadonegoofed$RP')
-                    passFailFlag = 1;
+                elseif strcmp(response,'$R0F') % A 'Failure' response
+                    passFailFlag = 0;
+                    break
                 end
                 
             case 'S' % STATUS REQUEST
                 % For now this functionality is not yet implemented on the
                 % MR or CR so just output simulated responses -- 1/19/15
-                CR_status{1,1} = sprintf('$SCB014795\n'); % CR Battery in mV
-                CR_status{2,1} = sprintf('$SCP3620021\n'); % CR Depth and Distance in cm
-                MR_status{1,1} = sprintf('$SMB014622\n'); % MR Battery in mV
-                passFailFlag = 1;
+                response = fscanf(gsSerialBuffer,'%s');
+                if strcmp(response,'$SP')
+                    CR_status{1,1} = sprintf('$SCB014795\n'); % CR Battery in mV
+                    CR_status{2,1} = sprintf('$SCP3620021\n'); % CR Depth and Distance in cm
+                    MR_status{1,1} = sprintf('$SMB014622\n'); % MR Battery in mV
+                    passFailFlag = 1;
+                else
+                    passFailFlag = 0;
+                end
             otherwise
                 pause(0.25); % allow buffer to fill(should be more than enough)
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
