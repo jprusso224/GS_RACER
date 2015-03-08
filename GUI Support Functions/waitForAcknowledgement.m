@@ -96,6 +96,8 @@ while ~passFailFlag && time_elapsed < timeout_dur
                 elseif strcmp(response,'$R0F') % A 'Failure' response
                     passFailFlag = 0;
                     break
+                else
+                    disp(response)
                 end
                 
             case 'S' % STATUS REQUEST

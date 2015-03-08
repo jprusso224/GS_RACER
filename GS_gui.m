@@ -501,7 +501,11 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 
 global gsSerialBuffer
 % Hint: delete(hObject) closes the figure
-button = questdlg('Are you sure you would like to close the GS GUI?','Closing GS GUI');
+if ~evalin('base','quit_flag')
+    button = questdlg('Are you sure you would like to close the GS GUI?','Closing GS GUI');
+else
+    button = 'Yes';
+end
 switch button
     case 'Yes'
         delete(hObject)

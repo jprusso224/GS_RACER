@@ -33,6 +33,7 @@ MR_status = cell(1,1);
 % Create the request status command string ================================
 cmd_str = sprintf('$SR\n');
 
+try
 % Send the request to the MR and CR =======================================
 PassFail_flag = send_command_Callback(cmd_str,handles);
 
@@ -58,5 +59,9 @@ set(handles.MR_batt_text,'String',MR_batt_text);
 log_entry = {'Received CR & MR Statuses:';MR_batt_text;CR_batt_text;...
     CR_depth_text;CR_dist_text;'NOTE: THESE WERE SIMULATED STATUSES!'};
 mission_log_Callback(handles,log_entry)
+end
+
+catch err
+    disp(err.message)
 end
 
