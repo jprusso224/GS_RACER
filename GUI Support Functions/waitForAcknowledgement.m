@@ -41,7 +41,7 @@ time_elapsed = toc;
 % Determine the proper timeout duration ===================================
 switch commandType
     case 'I'
-        timeout_dur = 60;   % seconds
+        timeout_dur = 5;   % seconds
     case 'R'
         timeout_dur = 100; % seconds
     case 'S'
@@ -72,7 +72,8 @@ while ~passFailFlag && time_elapsed < timeout_dur
                 % file. We need to keep collecting the string until we get
                 % to the 'ENDOFFILE' delimiter at the end of the
                 % transmitted message.
-                response = fscanf(gsSerialBuffer,'%s'); % Get the response string
+                response = fread(gsSerialBuffer,gsSerialBuffer.BytesAvailable,'*char'); % Get the response string
+%                 disp(['Got imaging response: ' response])
                 
                 % Concatenate the response onto the full string
                 fullPicString = [fullPicString response];
@@ -103,8 +104,8 @@ while ~passFailFlag && time_elapsed < timeout_dur
             case 'S' % STATUS REQUEST
                 % For now this functionality is not yet implemented on the
                 % MR or CR so just output simulated responses -- 1/19/15
-                response = fscanf(gsSerialBuffer,'%s');
-                if strcmp(response,'$SP')
+                response = char(fread(gsSerialBuffer,gsSerialBuffer.BytesAvailable,'char')');
+                if strcmp(response,sprintf('$SP\n'))
                     CR_status{1,1} = sprintf('$SCB014795\n'); % CR Battery in mV
                     CR_status{2,1} = sprintf('$SCP3620021\n'); % CR Depth and Distance in cm
                     MR_status{1,1} = sprintf('$SMB014622\n'); % MR Battery in mV

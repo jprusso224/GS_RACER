@@ -151,5 +151,8 @@ switch cmd_str(2) % Check what type of command string it is
         mission_log_Callback(handles,log_entry)
         
 end
-start(timerfind('Tag','heartbeat_timer')) % Restart the timer object
+temp = timerfind('Tag','heartbeat_timer');
+if ~strcmp(temp.Running,'on')
+    start(timerfind('Tag','heartbeat_timer')) % Restart the timer object
+end
 end
