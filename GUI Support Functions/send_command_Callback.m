@@ -90,6 +90,7 @@ switch cmd_str(2) % Check what type of command string it is
             else
                 % Display the image to the user
                 I = imread([image_Path image_FileName '.jpg']);
+                I = imrotate(I,180);
                 axes(handles.image_axes)
                 imshow(I)
                 title(image_FileName,'FontName','Courier New','FontSize',10)

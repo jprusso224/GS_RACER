@@ -41,7 +41,7 @@ time_elapsed = toc;
 % Determine the proper timeout duration ===================================
 switch commandType
     case 'I'
-        timeout_dur = 60;   % seconds
+        timeout_dur = 300;   % seconds
     case 'R'
         timeout_dur = 100; % seconds
     case 'S'
@@ -82,7 +82,7 @@ while ~passFailFlag && time_elapsed < timeout_dur
                 % should be noted that when using 'fscanf(' it is not
                 % possible to detect a newline character as a delimeter
                 if length(fullPicString) > 10
-                    if strcmp(fullPicString(end-8:end),'ENDOFFILE')
+                    if strcmp(fullPicString(end-9:end-1),'ENDOFFILE')
                         passFailFlag = 1;
                     end
                 end
@@ -129,10 +129,36 @@ end % end of while ~passFailFlag
 
 % Write the fullPicString to the picString.txt file =======================
 if commandType == 'I' && passFailFlag == 1
-picStringFile = fopen('ImageFiles\picString.txt','w+');
-fprintf(picStringFile,fullPicString(3:end-9)); % Don't include the '$I' at 
-fclose(picStringFile);                         % the beginning or the 
-end                                            % 'ENDOFFILE' at the end
+for ii = 1:10
+    if strcmp(fullPicString(ii),'I') && strcmp(fullPicString(ii-1),'$')
+        break
+    end
+end
+startInd = ii + 1;
+numChars = 0;
+for ii = length(fullPicString)-12:-1:length(fullPicString)-50
+    if strcmp(fullPicString(ii:ii+12),'NUMCHARACTERS')
+        for jj = (ii+13):ii+30
+            if strcmp(fullPicString(jj),'E')
+                numChars = str2double(fullPicString(ii+13:jj-1));
+                break
+            end
+        end
+        break
+    end
+end
+% endInd = startInd+numChars-1;
+endInd = ii - 1;
+fprintf('Got %d out of expected %d characters\n',endInd-startInd+1,numChars);
+if strcmp(fullPicString(endInd+1:endInd+3),'NUM') && (endInd-startInd+1) == numChars
+    picStringFile = fopen('ImageFiles\picString.txt','w+');
+    fprintf(picStringFile,fullPicString(startInd:endInd)); % Don't include the '$I' at
+    fclose(picStringFile);                                 % the beginning or the
+else                                                       % 'ENDOFFILE' at the end
+    passFailFlag = 1;
+    str = sprintf('ERROR: Failed to receive expected number of characters! Got %d out of expected %d',endInd-startInd,numChars);
+    waitfor(errordlg(str,'Error in image string received!'));
+end
 
 end % end of function
 
