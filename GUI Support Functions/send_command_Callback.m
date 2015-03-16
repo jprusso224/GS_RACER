@@ -47,6 +47,12 @@ global gsSerialBuffer
 % Stop the heartbeat timer for the duration of the command ================
 stop(timerfind('Tag','heartbeat_timer'))
 
+% Clear the serial buffer =================================================
+if gsSerialBuffer.BytesAvailable > 0
+    cleared_data = fread(gsSerialBuffer,gsSerialBuffer.BytesAvailable);
+end
+
+
 % Send the command via the serial port ====================================
 if length(cmd_str) > 3 % The command string must be at least 3 characters
 switch cmd_str(2) % Check what type of command string it is

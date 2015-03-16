@@ -43,7 +43,13 @@ switch commandType
     case 'I'
         timeout_dur = 300;   % seconds
     case 'R'
-        timeout_dur = 100; % seconds
+        timeout_dur = 100;  % seconds
+        % Set up the data save file
+        date_str = datestr(now);
+        date_str = date_str(end-8:end);
+        date_str(date_str == ':') = '_';
+        fname_str = ['rappelData' date_str '.txt'];
+        rappelDataFID = fopen(fname_str,'w+');
     case 'S'
         timeout_dur = 10;   % seconds
     case 'D'
@@ -59,7 +65,7 @@ while ~passFailFlag && time_elapsed < timeout_dur
         switch commandType
             case 'D' % DRIVING COMMAND
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
-                fprintf('%.2f s: %s\n',time_elapsed,response)
+                fprintf('%.2f s: %s\n',time_elapsed,response);
                 
                 % Make sure we got back the appropriate response
                 if length(response) >= 3 && strcmp(response(end-2:end),'$DP')
@@ -89,7 +95,9 @@ while ~passFailFlag && time_elapsed < timeout_dur
             case 'R' % RAPPELLING COMMAND
                 
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
-                fprintf('%.2f s: %s\n',time_elapsed,response)
+                fprintf('%.2f s: %s\n',time_elapsed,response);
+                
+                fprintf(rappelDataFID,'%.2f \t %s\n',time_elapsed,response);
                 
                 % See if we got the 'Pass' response
                 if ~isempty(response) && strcmp(response,'$R0P')
@@ -160,5 +168,9 @@ else                                                       % 'ENDOFFILE' at the 
     waitfor(errordlg(str,'Error in image string received!'));
 end
 
-end % end of function
+end % end of if commandType == 'I'
+
+if commandType == 'R'
+    fclose(rappelDataFID);
+end
 
