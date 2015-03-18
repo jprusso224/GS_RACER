@@ -26,6 +26,7 @@ Command Types =============================================================
         The rappelling commands are structured as follows:
             For Down/Up: $R0[+/-][zero-padded distance in cm (3 char)][\n]
             for a total of 8 characters. (e.g. $R0-073[\n])
+            For "Auto-Rappel": $RA[\n] for a total of 4 characters
             For "Return": $RU[\n] for a total of 4 characters
         The rappelling command acknowledgements are structured as follows:
             [THIS SHOULD INCLUDE MORE INFORMATION AS THE CR DEPTH NEEDS TO 

@@ -43,12 +43,12 @@ switch commandType
     case 'I'
         timeout_dur = 300;   % seconds
     case 'R'
-        timeout_dur = 100;  % seconds
+        timeout_dur = 200;  % seconds
         % Set up the data save file
         date_str = datestr(now);
         date_str = date_str(end-8:end);
         date_str(date_str == ':') = '_';
-        fname_str = ['rappelData' date_str '.txt'];
+        fname_str = ['Rappelling Testing\rappelData' date_str '.txt'];
         rappelDataFID = fopen(fname_str,'w+');
     case 'S'
         timeout_dur = 10;   % seconds
@@ -106,7 +106,7 @@ while ~passFailFlag && time_elapsed < timeout_dur
                     passFailFlag = 0;
                     break
                 else
-                    disp(response)
+%                     disp(response)
                 end
                 
             case 'S' % STATUS REQUEST
