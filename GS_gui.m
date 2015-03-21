@@ -22,7 +22,7 @@ function varargout = GS_gui(varargin)
 
 % Edit the above text to modify the response to help GS_gui
 
-% Last Modified by GUIDE v2.5 19-Jan-2015 14:36:00
+% Last Modified by GUIDE v2.5 21-Mar-2015 13:58:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -76,6 +76,7 @@ else
 end
 set(handles.Mission_Log,'String',newstr);
 set(handles.Mission_Log,'ListboxTop',size(newstr,1));
+set(handles.cancel_command_button,'Visible','off');
 
 % UIWAIT makes GS_gui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -145,6 +146,7 @@ function send_command_button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Switch case for different radio buttons being selected
+set(handles.cancel_command_button,'Visible','on');
 switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
     case 'rappel_option'
         % Get the manual rappelling distance ==============================
@@ -212,6 +214,7 @@ else
     mission_log_Callback(handles,'Command execution: FAILURE!!!!!!');
 end
 mission_log_Callback(handles,'Awaiting next user input...')
+set(handles.cancel_command_button,'Visible','off');
 
 function rappel_distance_m_Callback(hObject, eventdata, handles)
 % hObject    handle to rappel_distance_m (see GCBO)
@@ -476,7 +479,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % Get a list of available COM ports and put it in the popup-menu list
-ports = getAvailableComPorts(40);
+ports = getAvailableComPorts(20);
 set(hObject,'String',ports)
 set(hObject,'Value',1)
 if strcmp(ports,'ERR')
@@ -547,3 +550,4 @@ function save_Mission_Logs_Check_CreateFcn(hObject, eventdata, handles)
 global saveMissionLogsCheck
 set(hObject,'Value',0)
 saveMissionLogsCheck = 0;
+

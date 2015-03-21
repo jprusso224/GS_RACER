@@ -35,6 +35,8 @@ CR_status = cell(2,1);
 MR_status = cell(1,1);
 
 % Other variables =========================================================
+global cancel_command_flag
+evalin('base','cancel_command_flag = 0;');
 passFailFlag = 0;
 fullPicString = '';
 tic
@@ -66,7 +68,7 @@ switch commandType
         timeout_dur = 30;   % seconds
 end
         
-while ~passFailFlag && time_elapsed < timeout_dur
+while ~passFailFlag && time_elapsed < timeout_dur && ~evalin('base','cancel_command_flag')
     
     % wait for serial data ================================================
     if gsSerialBuffer.BytesAvailable > 0
@@ -185,4 +187,6 @@ if commandType == 'R'
 elseif commandType == 'D'
     fclose(driveDataFID);
 end
+
+evalin('base','cancel_command_flag = 0;');
 

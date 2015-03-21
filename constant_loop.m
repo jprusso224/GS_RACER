@@ -5,6 +5,15 @@ delete(timerfindall) % Delete all timer objects (hidden and not)
 delete(instrfindall) % Delete all serial objects (hidden and not)
 quit_flag = 0; % Initialize the quit_flag to 0
 serial_flag = 0; % Used to verify that serial port was found
+% global cancel_command_flag
+% cancel_command_flag = 0; % Used to stop a timeout period for a sent command
+
+% Add the GUI Support Functions to the path ===============================
+cd  GUI' Support Functions\' %change to the gui function directory
+gui_dir = pwd;      % set a variable to the gui function directory
+cd ..               % change directory back to the original directory
+addpath(gui_dir);   % add the gui function directory to the matlab search 
+                    % path to here
 
 global gsSerialBuffer serialPort
 
@@ -17,6 +26,8 @@ global gsSerialBuffer serialPort
 % and then updating the appropriate GUI fields.
 
 [handles,timerobj] = GS_gui();
+figure(handles.figure1);
+drawnow;
 
 %% Initialize serial communications =======================================
 % The serialPort global variable is set during the creation of the GUI

@@ -43,18 +43,36 @@ time_data(depth_data == 20) = [];
 depth_data(depth_data == 20) = [];
 
 % Load simulink data ======================================================
-load('SIM_data.mat');
-SIM.depth = (SIM.depth - max(SIM.depth)).*100;
-SIM.DR = -100.*SIM.DR(:,2);
+[SIM_depth, SIM_DR, SIM_t] = RappellingSimulink(final_depth, time_data);
+% SIM.depth = (SIM.depth - max(SIM.depth)).*100;
+% SIM.DR = -100.*SIM.DR(:,2);
+
+% Load video data =========================================================
+load('CR_vid_position.mat');
+CRpos.time_seconds(1:4) = [];
+CRpos.time_seconds = CRpos.time_seconds - CRpos.time_seconds(1);
+CRpos.x_pixel(1:4) = [];
+load('top_bot_refs_3_18_18_34_56.mat');
+pixel2ft = mean(top_bot_refs.top_bot_diff_ft./(top_bot_refs.x_pixel(1:2:end-1) - top_bot_refs.x_pixel(2:2:end)));
+pixel2m = pixel2ft*0.3048; % Convert from ft/pix to m/pix
+top_pix_interp = interp1(top_bot_refs.time_seconds(2:2:end),top_bot_refs.x_pixel(2:2:end),CRpos.time_seconds,'linear','extrap');
+bot_pix_interp = interp1(top_bot_refs.time_seconds(1:2:end-1),top_bot_refs.x_pixel(1:2:end-1),CRpos.time_seconds,'linear','extrap');
+
+% Determine the CR Depth over time ========================================
+CR_depth_vid = (bot_pix_interp-CRpos.x_pixel).*pixel2m;
+CR_depth_vid = CR_depth_vid - CR_depth_vid(1);
+CR_depth_vid = CR_depth_vid.*100; % Convert to cm
 
 % Create error bars for the depth =========================================
 uncert_depth = 1.*ones(size(depth_data)); % +/- 1cm is accuracy of range-finder
 
 figure
-plot(SIM.t,SIM.depth,'r','LineWidth',3)
+plot(SIM_t,SIM_depth,'b','LineWidth',3)
 hold on
-plot(time_data,-depth_data,'.','MarkerSize',10)
-err_h = errorbar(time_data,-depth_data,uncert_depth);
+plot(time_data,-depth_data,'r.','MarkerSize',15)
+plot(CRpos.time_seconds,CR_depth_vid,'k^','MarkerSize',8,'MarkerFaceColor','k')
+err_h = errorbar(time_data,-depth_data,uncert_depth,'r');
+plot([0 max(time_data)],[-final_depth+20 -final_depth+20],'g--','LineWidth',3)
 set(err_h,'LineStyle','none');
 err_h_Children = get(err_h,'Children');
 set(err_h_Children(1),'LineWidth',1.5);
@@ -71,7 +89,7 @@ dt = diff(time_data);
 DR_time_vec = zeros(size(descent_rate));
 DR_time_vec(1) = dt(1)/2;
 for ii = 2:length(dt)
-    DR_time_vec(ii) = DR_time_vec(ii-1) + dt(ii);
+    DR_time_vec(ii) = time_data(ii) + dt(ii)/2;
 end
 
 % Determine the error in descent rate =====================================
@@ -79,16 +97,16 @@ uncert_DR = descent_rate.*sqrt((mean(uncert_depth)./diff(depth_data)).^2 + ...
     (std(dt)./DR_time_vec).^2);
 
 figure
-plot(SIM.t,SIM.DR,'r','LineWidth',3)
+stairs(SIM_t,SIM_DR,'b','LineWidth',3)
 hold on
-plot(DR_time_vec,descent_rate,'.','MarkerSize',10)
-err_h2 = errorbar(DR_time_vec,descent_rate,uncert_DR);
+plot(DR_time_vec,descent_rate,'r.','MarkerSize',15)
+err_h2 = errorbar(DR_time_vec,descent_rate,uncert_DR,'r');
 set(err_h2,'LineStyle','none');
 err_h2_Children = get(err_h2,'Children');
 set(err_h2_Children(1),'LineWidth',1.5);
 set(err_h2_Children(2),'LineWidth',1.5);
 xlabel('Time, s')
-ylabel('Depth, cm')
+ylabel('Descent Rate, cm/s')
 grid on
 % ylim([-final_depth 0])
 % xlim([0 max(time_data)])
