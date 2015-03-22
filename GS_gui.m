@@ -76,7 +76,6 @@ else
 end
 set(handles.Mission_Log,'String',newstr);
 set(handles.Mission_Log,'ListboxTop',size(newstr,1));
-set(handles.cancel_command_button,'Visible','off');
 
 % UIWAIT makes GS_gui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -146,7 +145,6 @@ function send_command_button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Switch case for different radio buttons being selected
-set(handles.cancel_command_button,'Visible','on');
 switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
     case 'rappel_option'
         % Get the manual rappelling distance ==============================
@@ -214,7 +212,6 @@ else
     mission_log_Callback(handles,'Command execution: FAILURE!!!!!!');
 end
 mission_log_Callback(handles,'Awaiting next user input...')
-set(handles.cancel_command_button,'Visible','off');
 
 function rappel_distance_m_Callback(hObject, eventdata, handles)
 % hObject    handle to rappel_distance_m (see GCBO)
@@ -504,8 +501,11 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 
 global gsSerialBuffer
 % Hint: delete(hObject) closes the figure
-if ~evalin('base','quit_flag')
-    button = questdlg('Are you sure you would like to close the GS GUI?','Closing GS GUI');
+button = 'Yes';
+if evalin('base','exist(''quit_flag'')')
+    if ~evalin('base','quit_flag')
+        button = questdlg('Are you sure you would like to close the GS GUI?','Closing GS GUI');
+    end
 else
     button = 'Yes';
 end
@@ -525,6 +525,7 @@ switch button
         if ~isempty(instrfindall)
             delete(instrfindall)
         end
+        fclose all;
     otherwise
         % If they didn't press yes then do nothing!
 end
