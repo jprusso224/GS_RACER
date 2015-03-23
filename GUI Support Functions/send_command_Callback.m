@@ -62,7 +62,7 @@ switch cmd_str(2) % Check what type of command string it is
         mission_log_Callback(handles,log_entry)
         fprintf(gsSerialBuffer,cmd_str);
         
-        PassFail_flag = waitForAcknowledgement(cmd_str(2));
+        PassFail_flag = waitForAcknowledgement(cmd_str(2),'',handles);
         if PassFail_flag % if we were successful we must decode the image
             
             % Start creating the log_entry array
@@ -116,38 +116,45 @@ switch cmd_str(2) % Check what type of command string it is
         switch cmd_str(3) % Check what type of rappelling we're doing
             case '0' % Manual rappel
                 log_entry = ['Sent MANUAL RAPPEL command: ' cmd_str];
+                disp([datestr(now) ' -- ' log_entry])
             case 'D' % Rappel Auto
                 log_entry = ['Sent AUTO RAPPEL command: ' cmd_str];
+                disp([datestr(now) ' -- ' log_entry])
             case 'U' % Retract Auto
                 log_entry = ['Sent AUTO RETRACT command: ' cmd_str];
+                disp([datestr(now) ' -- ' log_entry])
         end
         mission_log_Callback(handles,log_entry)
         % Send the rappel command
         fprintf(gsSerialBuffer,cmd_str);
-        PassFail_flag = waitForAcknowledgement(cmd_str(2));
+        PassFail_flag = waitForAcknowledgement(cmd_str(2),cmd_str(3),handles);
         
     case 'D' % Driving command ============================================
         switch cmd_str(3) % Check what type of driving we're doing
             case 'F' % Forward driving
                 log_entry = ['Sent FORWARD DRIVE command: ' cmd_str];
+                disp([datestr(now) ' -- ' log_entry])
             case 'B' % Backward driving
                 log_entry = ['Sent REVERSE DRIVE command: ' cmd_str];
+                disp([datestr(now) ' -- ' log_entry])
             case 'L' % Left-hand turn
                 log_entry = ['Sent LEFT TURN command: ' cmd_str];
+                disp([datestr(now) ' -- ' log_entry])
             case 'R' % Right-hand turn
                 log_entry = ['Sent RIGHT TURN command: ' cmd_str];
+                disp([datestr(now) ' -- ' log_entry])
         end
         mission_log_Callback(handles,log_entry)
         % Send the driving command
         fprintf(gsSerialBuffer,cmd_str);
-        PassFail_flag = waitForAcknowledgement(cmd_str(2));
+        PassFail_flag = waitForAcknowledgement(cmd_str(2),cmd_str(3),handles);
         
     case 'S' % Status update request ======================================
         if strcmp(cmd_str,sprintf('$SR\n'))
             log_entry = ['Sent STATUS REQUEST: ' cmd_str];
             % Send the status request
             fprintf(gsSerialBuffer,cmd_str);
-            PassFail_flag =  waitForAcknowledgement(cmd_str(2));
+            PassFail_flag =  waitForAcknowledgement(cmd_str(2),'',handles);
         else
             log_entry = ['Unknown STATUS REQUEST string: ' cmd_str];
         end

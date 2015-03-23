@@ -1,6 +1,6 @@
-function [passFailFlag] = waitForAcknowledgement(commandType)
+function [passFailFlag] = waitForAcknowledgement(commandType,commandMod,handles)
 % =========================================================================
-% [passFailFlag] = waitForAcknowledgement(commandType)
+% [passFailFlag] = waitForAcknowledgement(commandType,commandMod,handles)
 %     This function should be called after a command is sent to the serial
 %     port and poles the serial port for an acknowledgement from the MR.
 %     Returns 1 when acknowledgement is received. Also has the capability
@@ -9,6 +9,9 @@ function [passFailFlag] = waitForAcknowledgement(commandType)
 %
 % Inputs: 
 %   commandType - Character that was sent as the command identifier.
+%   commandMod  - Character that was sent as the command modifier (e.g. 'L'
+%                 for a '$DL010' left turn command.
+%   handles     - structure of the GS_GUI handles.
 %
 % Outputs:
 %   passFailFlag - This is a boolean flag stating whether the command was
@@ -28,6 +31,14 @@ function [passFailFlag] = waitForAcknowledgement(commandType)
 %    the major change is to have individual timeouts for each different
 %    command type. Also adding functionality to the rappelling command to
 %    detect if a rappelling failure was reported.
+% Update 4: 3/10/2015 - 3/25/2015 by Thomas Green
+%    - Added data saving for both rappelling and driving. Also added extra
+%    inputs to the function so that we don't save data for return and
+%    turning commands. 
+%    - Added a "cancel" button to the GS_GUI so that if a command was sent
+%    but the operator does not with to wait for a timeout or
+%    acknowledgement they can just stop the while loop and the command will
+%    be marked as a fail.
 % =========================================================================
 global gsSerialBuffer CR_status MR_status % globally shared serial port to XBee/MR
 % globally shared status strings
@@ -48,25 +59,29 @@ switch commandType
         timeout_dur = 200;  % seconds
         % Set up the data save file
         date_str = datestr(now);
-        date_str = date_str(end-8:end);
         date_str(date_str == ':') = '_';
-        fname_str = ['Rappelling Testing\rappelData' date_str '.txt'];
+        fname_str = ['Rappelling Testing\rappelData ' date_str '.txt'];
         rappelDataFID = fopen(fname_str,'w+');
     case 'S'
         timeout_dur = 10;   % seconds
     case 'D'
         timeout_dur = 100;   % seconds
         % Set up the data save file
+        if ~strcmp(commandMod,'L') && ~strcmp(commandMod,'R')
         date_str = datestr(now);
-        date_str = date_str(end-8:end);
         date_str(date_str == ':') = '_';
-        fname_str = ['Driving Testing\driveData' date_str '.txt'];
+        fname_str = ['Driving Testing\driveData ' date_str '.txt'];
         driveDataFID = fopen(fname_str,'w+');
+        end
     otherwise
         timeout_dur = 30;   % seconds
 end
-        
-while ~passFailFlag && time_elapsed < timeout_dur
+
+% NOTE: THE STOP_FLAG DOES NOT CANCEL THE COMMAND ON THE CR, IT SIMPLY
+% CANCELS THE TIMEOUT SO THE OPERATOR DOES NOT HAVE TO CLOSE THE GUI IF
+% AN ERROR WAS ENCOUNTERED
+stop_flag = get(handles.CANCEL_COMMAND_CHKBOX,'Value');
+while ~passFailFlag && time_elapsed < timeout_dur && ~stop_flag
     
     % wait for serial data ================================================
     if gsSerialBuffer.BytesAvailable > 0
@@ -75,10 +90,13 @@ while ~passFailFlag && time_elapsed < timeout_dur
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
                 fprintf('%.2f s: %s\n',time_elapsed,response);
                 
+                
+                if ~strcmp(commandMod,'L') && ~strcmp(commandMod,'R')
                 fprintf(driveDataFID,'%.2f \t %s\n',time_elapsed,response);
+                end
                 
                 % Make sure we got back the appropriate response
-                if length(response) >= 3 && strcmp(response(end-2:end),'$DP')
+                if ~isempty(strfind(response,'$DP'))
                     passFailFlag = 1;
                 end
                 
@@ -110,9 +128,9 @@ while ~passFailFlag && time_elapsed < timeout_dur
                 fprintf(rappelDataFID,'%.2f \t %s\n',time_elapsed,response);
                 
                 % See if we got the 'Pass' response
-                if ~isempty(response) && strcmp(response,'$R0P')
+                if ~isempty(strfind(response,'$R0P'))
                     passFailFlag = 1;
-                elseif strcmp(response,'$R0F') % A 'Failure' response
+                elseif ~isempty(strfind(response,'$R0F')) % A 'Failure' response
                     passFailFlag = 0;
                     break
                 else
@@ -142,8 +160,17 @@ while ~passFailFlag && time_elapsed < timeout_dur
     end % end of checking if bytes are available on serial object
     
     time_elapsed = toc; % For timeout purposes
+    drawnow();
+    stop_flag = get(handles.CANCEL_COMMAND_CHKBOX,'Value');
+    % NOTE: THE STOP_FLAG DOES NOT CANCEL THE COMMAND ON THE CR, IT SIMPLY
+    % CANCELS THE TIMEOUT SO THE OPERATOR DOES NOT HAVE TO CLOSE THE GUI IF
+    % AN ERROR WAS ENCOUNTERED
     
 end % end of while ~passFailFlag
+
+if stop_flag % if the user pressed cancel, force the passFailFlag to be 0
+    passFailFlag = 0;
+end
 
 % Write the fullPicString to the picString.txt file =======================
 if commandType == 'I' && passFailFlag == 1
@@ -182,7 +209,7 @@ end % end of if commandType == 'I'
 
 if commandType == 'R'
     fclose(rappelDataFID);
-elseif commandType == 'D'
+elseif commandType == 'D' && ~strcmp(commandMod,'L') && ~strcmp(commandMod,'R')
     fclose(driveDataFID);
 end
 

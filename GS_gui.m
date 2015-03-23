@@ -22,7 +22,7 @@ function varargout = GS_gui(varargin)
 
 % Edit the above text to modify the response to help GS_gui
 
-% Last Modified by GUIDE v2.5 21-Mar-2015 13:58:43
+% Last Modified by GUIDE v2.5 23-Mar-2015 16:00:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -76,6 +76,8 @@ else
 end
 set(handles.Mission_Log,'String',newstr);
 set(handles.Mission_Log,'ListboxTop',size(newstr,1));
+
+set(handles.CANCEL_COMMAND_CHKBOX,'Value',0,'Visible','off')
 
 % UIWAIT makes GS_gui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -144,6 +146,13 @@ function send_command_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+global serialPort
+available = checkSerialPort(serialPort);
+
+if available % Make sure the selected com port is still available =========
+set(handles.CANCEL_COMMAND_CHKBOX,'Value',0,'Visible','on')
+drawnow
+
 % Switch case for different radio buttons being selected
 switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
     case 'rappel_option'
@@ -205,6 +214,9 @@ end
 % Now send the command ====================================================
 PassFail_flag = send_command_Callback(cmd_str,handles);
 
+set(handles.CANCEL_COMMAND_CHKBOX,'Value',0,'Visible','off')
+drawnow
+
 % Make sure it was executed successfully
 if PassFail_flag
     mission_log_Callback(handles,'Command execution: success');
@@ -212,6 +224,11 @@ else
     mission_log_Callback(handles,'Command execution: FAILURE!!!!!!');
 end
 mission_log_Callback(handles,'Awaiting next user input...')
+
+else % IF THE COM PORT WAS NOT AVAILABLE ==================================
+    mission_log_Callback(handles,'ERROR: Did not send command because COM port was unavailable...')
+    com_port_list_Callback(handles.com_port_list, eventdata, handles);
+end
 
 function rappel_distance_m_Callback(hObject, eventdata, handles)
 % hObject    handle to rappel_distance_m (see GCBO)
@@ -382,9 +399,9 @@ turn_angle = str2double(get(hObject,'String'));
 % Check if the entry was numeric
 if isnan(turn_angle)
     turn_angle = '0'; % If it wasn't then just set it to zero
-elseif abs(turn_angle) > 10
-    % If the input was larger than 10 degrees then bound it
-    turn_angle = sprintf('%2.f',turn_angle/abs(turn_angle)*10);
+elseif abs(turn_angle) > 300
+    % If the input was larger than 90 degrees then bound it
+    turn_angle = sprintf('%2.f',turn_angle/abs(turn_angle)*300);
 else
     % Otherwise just round it to degree accuracy
     turn_angle = num2str(ceil(turn_angle));
@@ -552,3 +569,15 @@ global saveMissionLogsCheck
 set(hObject,'Value',0)
 saveMissionLogsCheck = 0;
 
+
+
+% --- Executes on button press in CANCEL_COMMAND_CHKBOX.
+function CANCEL_COMMAND_CHKBOX_Callback(hObject, eventdata, handles)
+% hObject    handle to CANCEL_COMMAND_CHKBOX (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of CANCEL_COMMAND_CHKBOX
+if get(hObject,'Value')
+    set(hObject,'Visible','off')
+end

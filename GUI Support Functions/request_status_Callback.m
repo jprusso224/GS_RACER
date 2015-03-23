@@ -23,16 +23,22 @@ function request_status_Callback(handles)
 %    distance travelled information. It should be noted that these
 %    calculations assume a max battery voltage of 15V for both MR and CR
 %    and a linear decay of voltage proportional to capacity is used.
+% Update 3: 3/23/2015 by Thomas Green
+%    - Added a check to make sure the serial port is available before
+%    attempting to send the status request
 % =========================================================================
 
 % Clear the global status strings =========================================
-global CR_status MR_status
+global CR_status MR_status serialPort
 CR_status = cell(2,1);
 MR_status = cell(1,1);
 
 % Create the request status command string ================================
 cmd_str = sprintf('$SR\n');
 
+available = checkSerialPort(serialPort);
+
+if available % Only proceed if the com port is available ==================
 try
 % Disable the Send Command button =========================================
 set(handles.send_command_button,'Enable','off')
@@ -72,7 +78,12 @@ catch err
     disp(err.message)
 end
 
-% Re-enable the Send Command button ===================================
+else % If the com port was unavailable ====================================
+    mission_log_Callback(handles,'ERROR: Could not send status request because COM port was unavailable...')
+    com_port_list_Callback(handles.com_port_list, eventdata, handles);
+end
+
+% Re-enable the Send Command button =======================================
 set(handles.send_command_button,'Enable','on')
 drawnow
 
