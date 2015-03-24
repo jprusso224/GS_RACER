@@ -226,7 +226,7 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
         else
             auto_spool_sign = '+';
         end
-        cmd_str = sprintf('$AO%c%03d\n',auto_spool_sign,auto_spoolout_distance*100);
+        cmd_str = sprintf('$AO%c%03d\n',auto_spool_sign,abs(auto_spoolout_distance)*100);
         
 %     case 'deploy_option'
 % This option may or may not be unnecessary. Must talk w/ John about what
