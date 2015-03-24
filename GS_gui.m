@@ -22,7 +22,7 @@ function varargout = GS_gui(varargin)
 
 % Edit the above text to modify the response to help GS_gui
 
-% Last Modified by GUIDE v2.5 23-Mar-2015 16:00:53
+% Last Modified by GUIDE v2.5 24-Mar-2015 12:06:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -200,6 +200,9 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
     case 'return_option'
         % Construct the command string and make the log entry =============
         cmd_str = sprintf('$RU\n'); % This is for auto-retract
+    case 'spool_out_option'
+        auto_spoolout_distance = str2double(get(handles.spool_out_distance_m,'String'));
+        cmd_str = sprintf('$AO%03d\n',auto_spoolout_distance*100);
         
 %     case 'deploy_option'
 % This option may or may not be unnecessary. Must talk w/ John about what
@@ -580,4 +583,27 @@ function CANCEL_COMMAND_CHKBOX_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of CANCEL_COMMAND_CHKBOX
 if get(hObject,'Value')
     set(hObject,'Visible','off')
+end
+
+
+
+function spool_out_distance_m_Callback(hObject, eventdata, handles)
+% hObject    handle to spool_out_distance_m (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of spool_out_distance_m as text
+%        str2double(get(hObject,'String')) returns contents of spool_out_distance_m as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function spool_out_distance_m_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to spool_out_distance_m (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end

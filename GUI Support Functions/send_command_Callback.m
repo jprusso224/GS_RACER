@@ -40,6 +40,8 @@ function PassFail_flag = send_command_Callback(cmd_str,handles)
 %    is displayed to the user when imaging commands are sent. This must
 %    also be done with other command types but that will come when those
 %    commands actually do things other than blink LEDs on the Arduinos
+% Update 7: 3/24/2015 by John Russo
+%    - Added a send command item for the auto spool out command.
 % =========================================================================
 PassFail_flag = 0;
 global gsSerialBuffer
@@ -56,6 +58,15 @@ end
 % Send the command via the serial port ====================================
 if length(cmd_str) > 3 % The command string must be at least 3 characters
 switch cmd_str(2) % Check what type of command string it is
+    case 'A'
+        log_entry{1,1} = ['Sent AUTO SPOOL command: ' cmd_str];
+        log_entry{2,1} = 'Awaiting reply...';
+        mission_log_Callback(handles,log_entry);
+        fprintf(gsSerialBuffer,cmd_str);
+        PassFail_flag = waitForAcknowledgement(cmd_str(2),'',handles);
+        if PassFail_flag
+        end
+        
     case 'I' % Imaging command ============================================
         log_entry{1,1} = ['Sent CAPTURE IMAGE command: ' cmd_str];
         log_entry{2,1} = 'Awaiting reply...';

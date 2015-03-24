@@ -39,6 +39,8 @@ function [passFailFlag] = waitForAcknowledgement(commandType,commandMod,handles)
 %    but the operator does not with to wait for a timeout or
 %    acknowledgement they can just stop the while loop and the command will
 %    be marked as a fail.
+% Update 5: 3/24/2015 by John Russo
+%   - Added Auto spool out command for testing. 
 % =========================================================================
 global gsSerialBuffer CR_status MR_status % globally shared serial port to XBee/MR
 % globally shared status strings
@@ -53,7 +55,9 @@ time_elapsed = toc;
 
 % Determine the proper timeout duration ===================================
 switch commandType
-    case 'I'
+    case 'A'
+        timeout_dur = 100;  %seconds
+    case 'I'  
         timeout_dur = 300;   % seconds
     case 'R'
         timeout_dur = 200;  % seconds
@@ -86,6 +90,11 @@ while ~passFailFlag && time_elapsed < timeout_dur && ~stop_flag
     % wait for serial data ================================================
     if gsSerialBuffer.BytesAvailable > 0
         switch commandType
+            case 'A' % AUTO SPOOLOUT
+                response = fscanf(gsSerialBuffer,'%s'); % Get the response string
+                if ~isempty(strfind(response,'$AP'))
+                    passFailFlag = 1;
+                end
             case 'D' % DRIVING COMMAND
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
                 fprintf('%.2f s: %s\n',time_elapsed,response);
