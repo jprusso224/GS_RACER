@@ -92,6 +92,7 @@ while ~passFailFlag && time_elapsed < timeout_dur && ~stop_flag
         switch commandType
             case 'A' % AUTO SPOOLOUT
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
+                disp(response)
                 if ~isempty(strfind(response,'$AP'))
                     passFailFlag = 1;
                 end

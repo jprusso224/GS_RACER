@@ -29,14 +29,21 @@ function request_status_Callback(handles)
 % =========================================================================
 
 % Clear the global status strings =========================================
-global CR_status MR_status serialPort
+global CR_status MR_status gsSerialBuffer
 CR_status = cell(2,1);
 MR_status = cell(1,1);
 
 % Create the request status command string ================================
 cmd_str = sprintf('$SR\n');
 
-available = checkSerialPort(serialPort);
+% try % Check to make sure COM port is available ============================
+%     fclose(gsSerialBuffer);
+%     fopen(gsSerialBuffer);
+%     available = 1;
+% catch % If it's not make sure we don't try to continue ====================
+%     available = 0;
+% end
+available = 1;
 
 if available % Only proceed if the com port is available ==================
 try
@@ -74,13 +81,12 @@ log_entry = 'ERROR: Failed to receive a status acknowledgement!!';
 mission_log_Callback(handles,log_entry)
 end
 
-catch err
+catch err % If we encountered an error then display it ====================
     disp(err.message)
 end
 
 else % If the com port was unavailable ====================================
     mission_log_Callback(handles,'ERROR: Could not send status request because COM port was unavailable...')
-    com_port_list_Callback(handles.com_port_list, eventdata, handles);
 end
 
 % Re-enable the Send Command button =======================================

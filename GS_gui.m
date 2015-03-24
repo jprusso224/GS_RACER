@@ -146,8 +146,21 @@ function send_command_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-global serialPort
-available = checkSerialPort(serialPort);
+global serialPort gsSerialBuffer
+
+% try % Make sure the COM port is available =================================
+% 	fclose(instrfindall);
+%     delete(instrfindall);
+%     gsSerialBuffer = serial(serialPort);
+%     gsSerialBuffer.BaudRate = 115200;
+%     gsSerialBuffer.InputBufferSize = 100000; % Buffer size, in bytes
+%     gsSerialBuffer.Timeout = 40;
+%     fopen(gsSerialBuffer);
+%     available = 1;
+% catch % If it's not then flag it so we don't try to send a command ========
+%     available = 0;
+% end
+available = 1;
 
 if available % Make sure the selected com port is still available =========
 set(handles.CANCEL_COMMAND_CHKBOX,'Value',0,'Visible','on')
