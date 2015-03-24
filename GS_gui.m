@@ -146,21 +146,27 @@ function send_command_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+set(hObject,'Enable','off')
+drawnow
+
 global serialPort gsSerialBuffer
 
-% try % Make sure the COM port is available =================================
-% 	fclose(instrfindall);
-%     delete(instrfindall);
-%     gsSerialBuffer = serial(serialPort);
-%     gsSerialBuffer.BaudRate = 115200;
-%     gsSerialBuffer.InputBufferSize = 100000; % Buffer size, in bytes
-%     gsSerialBuffer.Timeout = 40;
-%     fopen(gsSerialBuffer);
-%     available = 1;
-% catch % If it's not then flag it so we don't try to send a command ========
-%     available = 0;
-% end
-available = 1;
+% Make sure the com port is still available ===============================
+try
+    fclose(gsSerialBuffer);
+    delete(gsSerialBuffer);
+end
+available = checkSerialPort(serialPort);
+if available
+    % If it is available then we can go ahead and create a new serial
+    % object for the port
+    gsSerialBuffer = serial(serialPort);
+    gsSerialBuffer.BaudRate = 115200;
+    gsSerialBuffer.InputBufferSize = 100000; % Buffer size, in bytes
+    gsSerialBuffer.Timeout = 40;
+    fopen(gsSerialBuffer);
+    pause(1)
+end
 
 if available % Make sure the selected com port is still available =========
 set(handles.CANCEL_COMMAND_CHKBOX,'Value',0,'Visible','on')
@@ -245,6 +251,9 @@ else % IF THE COM PORT WAS NOT AVAILABLE ==================================
     mission_log_Callback(handles,'ERROR: Did not send command because COM port was unavailable...')
     com_port_list_Callback(handles.com_port_list, eventdata, handles);
 end
+
+set(hObject,'Enable','on')
+drawnow
 
 function rappel_distance_m_Callback(hObject, eventdata, handles)
 % hObject    handle to rappel_distance_m (see GCBO)

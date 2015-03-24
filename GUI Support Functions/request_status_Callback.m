@@ -29,21 +29,29 @@ function request_status_Callback(handles)
 % =========================================================================
 
 % Clear the global status strings =========================================
-global CR_status MR_status gsSerialBuffer
+global CR_status MR_status gsSerialBuffer serialPort
 CR_status = cell(2,1);
 MR_status = cell(1,1);
 
 % Create the request status command string ================================
 cmd_str = sprintf('$SR\n');
 
-% try % Check to make sure COM port is available ============================
-%     fclose(gsSerialBuffer);
-%     fopen(gsSerialBuffer);
-%     available = 1;
-% catch % If it's not make sure we don't try to continue ====================
-%     available = 0;
-% end
-available = 1;
+% Make sure the com port is still available ===============================
+try
+    fclose(gsSerialBuffer);
+    delete(gsSerialBuffer);
+end
+available = checkSerialPort(serialPort);
+if available
+    % If it is available then we can go ahead and create a new serial
+    % object for the port
+    gsSerialBuffer = serial(serialPort);
+    gsSerialBuffer.BaudRate = 115200;
+    gsSerialBuffer.InputBufferSize = 100000; % Buffer size, in bytes
+    gsSerialBuffer.Timeout = 40;
+    fopen(gsSerialBuffer);
+    pause(1)
+end
 
 if available % Only proceed if the com port is available ==================
 try

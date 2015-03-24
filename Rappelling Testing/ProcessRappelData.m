@@ -53,15 +53,22 @@ CRpos.time_seconds(1:4) = [];
 CRpos.time_seconds = CRpos.time_seconds - CRpos.time_seconds(1);
 CRpos.x_pixel(1:4) = [];
 load('top_bot_refs_3_18_18_34_56.mat');
-pixel2ft = mean(top_bot_refs.top_bot_diff_ft./(top_bot_refs.x_pixel(1:2:end-1) - top_bot_refs.x_pixel(2:2:end)));
-pixel2m = pixel2ft*0.3048; % Convert from ft/pix to m/pix
+pixel2ft = (top_bot_refs.top_bot_diff_ft./(top_bot_refs.x_pixel(1:2:end-1) - top_bot_refs.x_pixel(2:2:end)));
+pixel2m = pixel2ft.*0.3048; % Convert from ft/pix to m/pix
 top_pix_interp = interp1(top_bot_refs.time_seconds(2:2:end),top_bot_refs.x_pixel(2:2:end),CRpos.time_seconds,'linear','extrap');
 bot_pix_interp = interp1(top_bot_refs.time_seconds(1:2:end-1),top_bot_refs.x_pixel(1:2:end-1),CRpos.time_seconds,'linear','extrap');
 
 % Determine the CR Depth over time ========================================
-CR_depth_vid = (bot_pix_interp-CRpos.x_pixel).*pixel2m;
+CR_depth_vid = (bot_pix_interp-CRpos.x_pixel).*mean(pixel2m);
 CR_depth_vid = CR_depth_vid - CR_depth_vid(1);
 CR_depth_vid = CR_depth_vid.*100; % Convert to cm
+
+% Calculate the error bars for depth ======================================
+uncert_pix = 50;
+% uncert_depth = CR_depth.*sqrt((uncert_pix./(bot_pix_interp-pos.x_pixel)).^2 +...
+%     ((std(pixel2m)/mean(pixel2m)).^2).*ones(size(pos.x_pixel)));
+uncert_depth_vid = uncert_pix*mean(pixel2m)*100.*ones(size(CR_depth_vid)) + ...
+    std(pixel2m)*mean(pixel2m)*100.*ones(size(CR_depth_vid));
 
 % Create error bars for the depth =========================================
 uncert_depth = 1.*ones(size(depth_data)); % +/- 1cm is accuracy of range-finder
@@ -72,11 +79,16 @@ hold on
 plot(time_data,-depth_data,'r.','MarkerSize',15)
 plot(CRpos.time_seconds,CR_depth_vid,'k^','MarkerSize',8,'MarkerFaceColor','k')
 err_h = errorbar(time_data,-depth_data,uncert_depth,'r');
+err_h2 = errorbar(CRpos.time_seconds,CR_depth_vid,uncert_depth_vid,'k');
 plot([0 max(time_data)],[-final_depth+20 -final_depth+20],'g--','LineWidth',3)
 set(err_h,'LineStyle','none');
+set(err_h2,'LineStyle','none');
 err_h_Children = get(err_h,'Children');
 set(err_h_Children(1),'LineWidth',1.5);
 set(err_h_Children(2),'LineWidth',1.5);
+err_h2_Children = get(err_h2,'Children');
+set(err_h2_Children(1),'LineWidth',1.5);
+set(err_h2_Children(2),'LineWidth',1.5);
 xlabel('Time, s')
 ylabel('Depth, cm')
 grid on

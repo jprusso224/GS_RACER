@@ -163,13 +163,14 @@ switch cmd_str(2) % Check what type of command string it is
     case 'S' % Status update request ======================================
         if strcmp(cmd_str,sprintf('$SR\n'))
             log_entry = ['Sent STATUS REQUEST: ' cmd_str];
+            mission_log_Callback(handles,log_entry)
             % Send the status request
             fprintf(gsSerialBuffer,cmd_str);
             PassFail_flag =  waitForAcknowledgement(cmd_str(2),'',handles);
         else
             log_entry = ['Unknown STATUS REQUEST string: ' cmd_str];
+            mission_log_Callback(handles,log_entry)
         end
-        mission_log_Callback(handles,log_entry)
         
     otherwise % If we don't know what this is then do nothing =============
         log_entry = ['Unknown command string: ' cmd_str];

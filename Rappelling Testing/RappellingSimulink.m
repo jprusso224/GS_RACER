@@ -14,8 +14,8 @@ radperstep = 2*pi/n_steps_true;
 % radperstep = 4.0212E-4; % rad/step of stepper motor 0.0021;
 radius_spool = 0.04445; % m
 
-r_wire = 0.79375E-3; % radius of tether, m
-effective_radius_spool = radius_spool + 3*r_wire;
+r_wire = 0.00119063; % radius of tether, m
+effective_radius_spool = radius_spool + 2*r_wire + 0.6*r_wire
 
 sim_time = t_exp; % Run simulation at same update rate as the true experiment
 options = simset('SrcWorkspace','current');
