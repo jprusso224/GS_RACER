@@ -221,7 +221,12 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
         cmd_str = sprintf('$RU\n'); % This is for auto-retract
     case 'spool_out_option'
         auto_spoolout_distance = str2double(get(handles.spool_out_distance_m,'String'));
-        cmd_str = sprintf('$AO%03d\n',auto_spoolout_distance*100);
+        if auto_spoolout_distance < 0
+            auto_spool_sign = '-';
+        else
+            auto_spool_sign = '+';
+        end
+        cmd_str = sprintf('$AO%c%03d\n',auto_spool_sign,auto_spoolout_distance*100);
         
 %     case 'deploy_option'
 % This option may or may not be unnecessary. Must talk w/ John about what
