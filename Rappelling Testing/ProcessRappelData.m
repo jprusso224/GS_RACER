@@ -8,6 +8,7 @@
 %    going from 0 to 20 in that time. 
 % =========================================================================
 clear; close all;
+set(0,'DefaultAxesFontSize',14)
 
 %%
 datafile = uigetfile('*.txt','Select A Rappelling Data File');
@@ -74,13 +75,13 @@ uncert_depth_vid = uncert_pix*mean(pixel2m)*100.*ones(size(CR_depth_vid)) + ...
 uncert_depth = 1.*ones(size(depth_data)); % +/- 1cm is accuracy of range-finder
 
 figure
-plot(SIM_t,SIM_depth,'b','LineWidth',3)
+h1 = plot([0 max(time_data)],[-final_depth+20 -final_depth+20],'g--','LineWidth',3);
 hold on
-plot(time_data,-depth_data,'r.','MarkerSize',15)
-plot(CRpos.time_seconds,CR_depth_vid,'k^','MarkerSize',8,'MarkerFaceColor','k')
-err_h = errorbar(time_data,-depth_data,uncert_depth,'r');
+h2 = plot(SIM_t,SIM_depth,'b','LineWidth',3);
+h3 = plot(CRpos.time_seconds,CR_depth_vid,'k^','MarkerSize',8,'MarkerFaceColor','k');
 err_h2 = errorbar(CRpos.time_seconds,CR_depth_vid,uncert_depth_vid,'k');
-plot([0 max(time_data)],[-final_depth+20 -final_depth+20],'g--','LineWidth',3)
+h4 = plot(time_data,-depth_data,'r.','MarkerSize',15);
+err_h = errorbar(time_data,-depth_data,uncert_depth,'r');
 set(err_h,'LineStyle','none');
 set(err_h2,'LineStyle','none');
 err_h_Children = get(err_h,'Children');
@@ -94,6 +95,7 @@ ylabel('Depth, cm')
 grid on
 ylim([-final_depth 0])
 xlim([0 max(time_data)])
+legend([h4 h3 h2 h1],'Range-finder Depth Measurements','Depth Measurements From Video','Expected Performance From Model','20cm Above Target Depth')
 
 % Determine the descent rate ==============================================
 descent_rate = diff(depth_data)./diff(time_data);
@@ -109,9 +111,9 @@ uncert_DR = descent_rate.*sqrt((mean(uncert_depth)./diff(depth_data)).^2 + ...
     (std(dt)./DR_time_vec).^2);
 
 figure
-stairs(SIM_t,SIM_DR,'b','LineWidth',3)
+h1 = stairs(SIM_t,SIM_DR,'b','LineWidth',3);
 hold on
-plot(DR_time_vec,descent_rate,'r.','MarkerSize',15)
+h2 = plot(DR_time_vec,descent_rate,'r.','MarkerSize',15);
 err_h2 = errorbar(DR_time_vec,descent_rate,uncert_DR,'r');
 set(err_h2,'LineStyle','none');
 err_h2_Children = get(err_h2,'Children');
@@ -119,6 +121,8 @@ set(err_h2_Children(1),'LineWidth',1.5);
 set(err_h2_Children(2),'LineWidth',1.5);
 xlabel('Time, s')
 ylabel('Descent Rate, cm/s')
+xlim([0 max(time_data)])
 grid on
+legend([h2 h1],'Calculated Speed From Range-finder Data','Expected Performance From Model')
 % ylim([-final_depth 0])
 % xlim([0 max(time_data)])

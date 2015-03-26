@@ -19,6 +19,7 @@ effective_radius_spool = radius_spool + 2*r_wire + 0.6*r_wire
 
 sim_time = t_exp; % Run simulation at same update rate as the true experiment
 options = simset('SrcWorkspace','current');
+rappellingLoop
 set_param('rappellingLoop','InitInArrayFormatMsg','None');
 
 [tout, yout, yout2] = sim('rappellingLoop.slx',sim_time,options);
