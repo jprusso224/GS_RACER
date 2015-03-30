@@ -41,8 +41,7 @@ function [passFailFlag] = waitForAcknowledgement(commandType,commandMod,handles)
 %    be marked as a fail.
 % Update 5: 3/24/2015 by John Russo
 %   - Added Auto spool out command for testing. 
-% Update 6: 3/30/2015 by John Russo
-%   - Can now receive deploy acknowledgments.
+% Update 6: 3/30/2015 by Jo
 % =========================================================================
 global gsSerialBuffer CR_status MR_status % globally shared serial port to XBee/MR
 % globally shared status strings

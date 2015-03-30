@@ -43,7 +43,6 @@ function PassFail_flag = send_command_Callback(cmd_str,handles)
 % Update 7: 3/24/2015 by John Russo
 %    - Added a send command item for the auto spool out command.
 % Update 8: 3/30/2015 by John Russo
-%    - Added the capability of sending a deploy command.
 % =========================================================================
 PassFail_flag = 0;
 global gsSerialBuffer
