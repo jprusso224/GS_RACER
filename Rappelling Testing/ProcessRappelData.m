@@ -69,7 +69,7 @@ uncert_pix = 50;
 % uncert_depth = CR_depth.*sqrt((uncert_pix./(bot_pix_interp-pos.x_pixel)).^2 +...
 %     ((std(pixel2m)/mean(pixel2m)).^2).*ones(size(pos.x_pixel)));
 uncert_depth_vid = uncert_pix*mean(pixel2m)*100.*ones(size(CR_depth_vid)) + ...
-    std(pixel2m)*mean(pixel2m)*100.*ones(size(CR_depth_vid));
+    0.*std(pixel2m)*mean(pixel2m)*100.*ones(size(CR_depth_vid));
 
 % Create error bars for the depth =========================================
 uncert_depth = 1.*ones(size(depth_data)); % +/- 1cm is accuracy of range-finder
@@ -96,6 +96,31 @@ grid on
 ylim([-final_depth 0])
 xlim([0 max(time_data)])
 legend([h4 h3 h2 h1],'Range-finder Depth Measurements','Depth Measurements From Video','Expected Performance From Model','20cm Above Target Depth')
+
+% Plot the residuals ======================================================
+sim_interp = griddedInterpolant(SIM_t,SIM_depth,'linear');
+RF_res = (-depth_data) - sim_interp(time_data);
+vid_res = CR_depth_vid - sim_interp(CRpos.time_seconds);
+
+figure
+h1 = plot(CRpos.time_seconds,vid_res,'k^','MarkerSize',8,'MarkerFaceColor','k');
+hold on
+err_h1 = errorbar(CRpos.time_seconds,vid_res,uncert_depth_vid,'k');
+set(err_h1,'LineStyle','none');
+err_h1_Children = get(err_h1,'Children');
+set(err_h1_Children(1),'LineWidth',1.5);
+set(err_h1_Children(2),'LineWidth',1.5);
+h2 = plot(time_data,RF_res,'r.','MarkerSize',15);
+err_h2 = errorbar(time_data,RF_res,uncert_depth,'r');
+set(err_h2,'LineStyle','none');
+err_h2_Children = get(err_h2,'Children');
+set(err_h2_Children(1),'LineWidth',1.5);
+set(err_h2_Children(2),'LineWidth',1.5);
+xlim([0 max(time_data)])
+grid on
+xlabel('Time, s')
+ylabel('Depth Measurement Residuals, cm')
+legend([h2 h1],'Range-finder Depth Measurement Residuals','Residuals of Depth Measurements From Video')
 
 % Determine the descent rate ==============================================
 descent_rate = diff(depth_data)./diff(time_data);
