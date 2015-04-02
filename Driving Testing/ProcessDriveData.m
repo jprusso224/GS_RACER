@@ -31,6 +31,7 @@ datastr(1).deltaFL = [];
 datastr(1).deltaFR_time = [];
 datastr(1).deltaFR = [];
 datastr(1).time = [];
+datastr(1).DT = [];
 
 dataline = fgetl(dataFID);
 dataline_EOT = find(dataline == ' ',1,'first')-1;
@@ -45,6 +46,7 @@ pwmL_count = 1;
 pwmR_count = 1;
 deltaFL_count = 1;
 deltaFR_count = 1;
+DT_count = 1;
 while dataline ~= -1
 %     disp(dataline(8:9))
     if length(dataline) > dataline_SOD
@@ -100,7 +102,10 @@ while dataline ~= -1
                 datastr.pwmR(pwmR_count) = str2double(dataline(dataline_SOD+5:end));
                 pwmR_count = pwmR_count+1;
             end
-        case 'DT'
+        case 'T:'
+            datastr.DT_time(DT_count) = str2double(dataline(1:dataline_EOT));
+            datastr.DT(DT_count) = str2double(dataline(dataline_SOD+2:end));
+            DT_count = DT_count + 1;
     end
     end
     dataline = fgetl(dataFID);
@@ -153,11 +158,15 @@ subplot(2,1,1)
 plot(x, y,'.-','MarkerSize',20,'LineWidth',3)
 xlabel('X-position, mm')
 ylabel('Y-position, mm')
-xlim([min(x) max(x)])
+if min(x) ~= max(x)
+    xlim([min(x) max(x)])
+end
 grid on
 subplot(2,1,2)
 plot(x,theta,'r.-','MarkerSize',20,'LineWidth',3)
-xlim([min(x) max(x)])
+if max(x) ~= min(x)
+    xlim([min(x) max(x)])
+end
 xlabel('X-position, mm')
 ylabel('Orientation, deg')
 grid on
@@ -195,6 +204,16 @@ if ~isempty(datastr.deltaFL_time) && ~isempty(datastr.deltaFR_time)
 try
 figure
 plot(datastr.deltaFL_time,datastr.deltaFL,datastr.deltaFR_time,datastr.deltaFR,'.-','LineWidth',3)
+grid on
+catch err
+    disp(err.message)
+end
+end
+
+if ~isempty(datastr.DT)
+try
+figure
+plot(datastr.DT_time,datastr.DT,'.-','LineWidth',3)
 grid on
 catch err
     disp(err.message)
