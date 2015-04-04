@@ -1,5 +1,5 @@
 Running constant_loop.m will start the GUI. 
-This GUI is currently incomplete but has some basic functionality.
+This GUI is currently incomplete but has most functionality. 4/3/2015
 
 TABLE OF CONTENTS =========================================================
     - Running the GUI
@@ -7,14 +7,36 @@ TABLE OF CONTENTS =========================================================
     -
 
 Running the GUI ===========================================================
-    Plug in everything and run the 'constant_loop' main file. Press buttons
-    and don't be surprised if lots of things aren't implemented yet on the
-    MR and CR. The GS is 95-99% done as of 1/19.
+    1) Plug in everything on the CR and MR. The CR needs ~30s for the
+    Raspberry Pi to fully initialize and start running its script. If the
+    CR XBee and CR Arduino are not connected to the RPi then the script 
+    will crash and theoretically keep trying to restart itself (though this
+    functionality has not been verified). The switch on the MR Arduino XBee
+    shield must be set to UART not DLINE in order for it to properly
+    receive and relay data between the two MR XBee's.
+
+    2) Run 'constant_loop.m'. This is a function that initializes
+    everything on the ground station outside of the main GUI function. It
+    runs in a constant loop that is checking to see if the "ABORT MISSION"
+    button on the GUI was pressed. As of 4/3/2015 the maximum mission
+    duration was fixed at 1000 seconds but this will be changed when full
+    system testing is being done as the actual CR mission will likely be 
+    closer to 90 minutes. A timer object is also started that calls the 
+    'request_status_Callback.m' function which periodically checks if
+    communications are present between all of the systems. The timer object
+    is stopped when the constant loop is exited.
+
+    3) Select the radio button on the GUI for the command you would like to
+    send and fill in a value to the associated text box (if applicable).
+    The textbox callbacks within 'GS_gui.m' are (generally) set to limit
+    the input to reasonable values but the user must still be careful in
+    sending commands like driving and spooling out tether because the CR
+    and MR are not smart enough to not cause themselves harm.
 
 Command Types =============================================================
     The basic command structure starts with a '$' delimeter and a newline
-    character EOL character. The shortest string that is expected to be 
-    sent is 4 characters whereas the longest is ~35,000 for an image
+    EOL character. The shortest string that is expected to be sent is 4 
+    characters whereas the longest is ~90,000 for an image
 
    - RAPPELLING
         There are three different types of rappelling commands: down, up, 
@@ -66,13 +88,43 @@ Command Types =============================================================
         the GS is unable to detect this newline character. The image string
         must then be decoded on the GS computer using a python script in
         order to be displayed to the user.
+            NOTE: The number of characters that should have been received
+                  was later added as additional information that the GS
+                  can parse for troubleshooting. If the number of received 
+                  characters does not match this value the GS currently
+                  only warns the user and still attempts to decode the
+                  image (this sometimes works even with missing characters)
         
         The imaging commands are structured as follows:
             $I[+/- (pan angle sign)][zero-padded pan angle in deg (2 ...
             char)][zero-padded tilt angle in deg (2 char)][\n] for a total
             of 8 characters. (e.g. $I-0872[\n])
         The imaging command acknowledgements are structured as follows:
-            $I[IMAGE STRING TEXT (~35,000 char)][ENDOFFILE][\n]
+            $I[IMAGE STRING TEXT (~90,000 char)][nchars][ENDOFFILE][\n] 
+            where 'nchars' is the integer number of characters in the full
+            image string text.
+    
+    - SPOOLING
+        This gives functionality to the GS to spool out (or in) an 
+        approximate length of tether. The MR Arduino only uses feedback
+        from the encoder on the winch stepper motor to calculate arclength.
+        The speed for reeling in is set to be much slower than reeling out
+        because there are situations when returning that the stepper motor
+        could get stalled (e.g. if the CR was caught on something) so it is
+        just safer to go slower.
+    
+        The spooling commands are structured as follows:
+            $AO[+/- zero-padded spool distance in cm (3 char)][\n] for a
+            total of 8 characters. (e.g. $AO+045[\n])
+        The spooling command acknowledgements are structured as follows:
+            $A[P/F][\n] for a total of 4 characters
+    
+    - DEPLOYING
+        
+    
+    - RETURNING
+        
+    
 
     - STATUS REQUEST
         A timer object is set up when creating the GS_GUI that is started

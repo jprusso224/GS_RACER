@@ -146,19 +146,19 @@ switch cmd_str(2) % Check what type of command string it is
         switch cmd_str(3) % Check what type of driving we're doing
             case 'D' % Deploy command
                 log_entry = ['Sent DEPLOY command: ' cmd_str];
-                disp([datestr(now) ' -- ' log_entry]);
+                fprintf([datestr(now) ' -- ' log_entry]);
             case 'F' % Forward driving
                 log_entry = ['Sent FORWARD DRIVE command: ' cmd_str];
-                disp([datestr(now) ' -- ' log_entry])
+                fprintf([datestr(now) ' -- ' log_entry])
             case 'B' % Backward driving
                 log_entry = ['Sent REVERSE DRIVE command: ' cmd_str];
-                disp([datestr(now) ' -- ' log_entry])
+                fprintf([datestr(now) ' -- ' log_entry])
             case 'L' % Left-hand turn
                 log_entry = ['Sent LEFT TURN command: ' cmd_str];
-                disp([datestr(now) ' -- ' log_entry])
+                fprintf([datestr(now) ' -- ' log_entry])
             case 'R' % Right-hand turn
                 log_entry = ['Sent RIGHT TURN command: ' cmd_str];
-                disp([datestr(now) ' -- ' log_entry])
+                fprintf([datestr(now) ' -- ' log_entry])
         end
         mission_log_Callback(handles,log_entry)
         % Send the driving command

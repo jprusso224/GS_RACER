@@ -73,7 +73,7 @@ switch commandType
     case 'D'
         timeout_dur = 100;   % seconds
         % Set up the data save file
-        if ~strcmp(commandMod,'L') && ~strcmp(commandMod,'R')
+        if strcmp(commandMod,'L') || strcmp(commandMod,'R')
         date_str = datestr(now);
         date_str(date_str == ':') = '_';
         fname_str = ['Driving Testing\driveData ' date_str '.txt'];
@@ -102,7 +102,7 @@ while ~passFailFlag && time_elapsed < timeout_dur && ~stop_flag
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
                 fprintf('%.2f s: %s\n',time_elapsed,response);
                 
-                if ~strcmp(commandMod,'L') && ~strcmp(commandMod,'R') && ~strcmp(commandMod,'D')
+                if strcmp(commandMod,'L') || strcmp(commandMod,'R')
                     fprintf(driveDataFID,'%.2f \t %s\n',time_elapsed,response);
                 end
                 
@@ -223,7 +223,7 @@ end % end of if commandType == 'I'
 
 if commandType == 'R'
     fclose(rappelDataFID);
-elseif commandType == 'D' && ~strcmp(commandMod,'L') && ~strcmp(commandMod,'R')
+elseif commandType == 'D' && (strcmp(commandMod,'L') || strcmp(commandMod,'R'))
     fclose(driveDataFID);
 end
 
