@@ -229,6 +229,8 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
         cmd_str = sprintf('$AO%c%03d\n',auto_spool_sign,abs(auto_spoolout_distance)*100);
     case 'deploy_option'
         cmd_str = sprintf('$DD\n');
+    case 'transition_option'
+        cmd_str = sprintf('$DT\n');
 %     case 'deploy_option'
 % This option may or may not be unnecessary. Must talk w/ John about what
 % would go into this. -- Thomas 1/7/2015

@@ -147,6 +147,9 @@ switch cmd_str(2) % Check what type of command string it is
             case 'D' % Deploy command
                 log_entry = ['Sent DEPLOY command: ' cmd_str];
                 disp([datestr(now) ' -- ' log_entry]);
+            case 'T'
+                log_entry = ['Sent TRANSITION command: ' cmd_str];
+                disp([datestr(now) ' -- ' log_entry]);
             case 'F' % Forward driving
                 log_entry = ['Sent FORWARD DRIVE command: ' cmd_str];
                 disp([datestr(now) ' -- ' log_entry])
