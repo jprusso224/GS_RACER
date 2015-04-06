@@ -112,6 +112,8 @@ while ~passFailFlag && time_elapsed < timeout_dur && ~stop_flag
                 % Check for deploy response
                 elseif ~isempty(strfind(response,'$DDP'))
                     passFailFlag = 1;
+                elseif ~isempty(strfind(response,'$DTP'))
+                    passFailFlag = 1;
                 end
                 
             case 'I' % IMAGING COMMAND
