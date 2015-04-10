@@ -231,6 +231,8 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
         cmd_str = sprintf('$DD\n');
     case 'transition_option'
         cmd_str = sprintf('$DT\n');
+    case 'auto_rappel_option'
+        cmd_str = sprintf('$RD\n');
 %     case 'deploy_option'
 % This option may or may not be unnecessary. Must talk w/ John about what
 % would go into this. -- Thomas 1/7/2015
