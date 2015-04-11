@@ -57,12 +57,12 @@ time_elapsed = toc;
 
 % Determine the proper timeout duration ===================================
 switch commandType
-    case 'A'
-        timeout_dur = 100;  %seconds
+    case 'A' % Auto-spool
+        timeout_dur = 1000;  %seconds
     case 'I'  
         timeout_dur = 300;   % seconds
     case 'R'
-        timeout_dur = 200;  % seconds
+        timeout_dur = 1000;  % seconds
         % Set up the data save file
         date_str = datestr(now);
         date_str(date_str == ':') = '_';
@@ -73,7 +73,7 @@ switch commandType
     case 'D'
         timeout_dur = 100;   % seconds
         % Set up the data save file
-        if strcmp(commandMod,'L') || strcmp(commandMod,'R')
+        if strcmp(commandMod,'F') || strcmp(commandMod,'B')
         date_str = datestr(now);
         date_str(date_str == ':') = '_';
         fname_str = ['Driving Testing\driveData ' date_str '.txt'];
@@ -225,7 +225,7 @@ end % end of if commandType == 'I'
 
 if commandType == 'R'
     fclose(rappelDataFID);
-elseif commandType == 'D' && (strcmp(commandMod,'L') || strcmp(commandMod,'R'))
+elseif commandType == 'D' && (strcmp(commandMod,'F') || strcmp(commandMod,'B'))
     fclose(driveDataFID);
 end
 
