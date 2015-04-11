@@ -215,7 +215,7 @@ switch get(get(handles.command_options_button_group,'SelectedObject'),'Tag')
             pan_angle_sign = '+';
         end
         % Construct the command string and "capture" the image ============
-        cmd_str = sprintf('$I%c%02d%02d\n',pan_angle_sign,pan_angle_deg,tilt_angle_deg);
+        cmd_str = sprintf('$I%c%02d%02d\n',pan_angle_sign,abs(pan_angle_deg),tilt_angle_deg);
     case 'return_option'
         % Construct the command string and make the log entry =============
         cmd_str = sprintf('$RU\n'); % This is for auto-retract
@@ -354,8 +354,8 @@ function pan_angle_deg_Callback(hObject, eventdata, handles)
 % Get the input pan angle in degrees ======================================
 pan_angle = str2double(get(hObject,'String'));
 % Check if the entry was numeric or less than zero
-if isnan(pan_angle) || pan_angle < 0
-    pan_angle = '0'; % If it wasn't then just set it to zero
+if isnan(pan_angle) || pan_angle < -90
+    pan_angle = '-90'; % If it wasn't then just set it to zero
 elseif pan_angle > 90
     % If the input was larger than 90 degrees then bound it
     pan_angle = '90';
