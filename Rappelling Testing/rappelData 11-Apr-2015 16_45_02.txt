@@ -1,0 +1,30 @@
+0.44 	 EnteredAutoRappelCommand
+0.44 	 GettingDepthfromCR
+0.83 	 $
+0.83 	 R
+0.83 	 P
+0.84 	 0
+0.84 	 5
+0.85 	 3
+0.85 	 
+0.86 	 
+0.86 	 ReceivedInitialDepth
+0.86 	 $RP053
+0.87 	 EnteringRappelLoop
+1.33 	 53
+1.74 	 52
+2.25 	 53
+2.64 	 53
+3.05 	 53
+3.56 	 54
+3.98 	 53
+4.47 	 54
+9.49 	 ResendingcommandtoCR...
+14.33 	 22
+14.52 	 23
+14.85 	 23
+15.15 	 22
+15.46 	 23
+15.75 	 24
+16.06 	 22
+19.18 	 19
