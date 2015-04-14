@@ -97,6 +97,43 @@ ylim([-final_depth 0])
 xlim([0 max(time_data)])
 legend([h4 h3 h2 h1],'Range-finder Depth Measurements','Depth Measurements From Video','Expected Performance From Model','20cm Above Target Depth')
 
+% Plot the cropped data ===================================================
+max_height = 100;
+cropSIM_ind = find(SIM_depth <= -final_depth+max_height);
+cropSIM_t = SIM_t(cropSIM_ind)-SIM_t(cropSIM_ind(1));
+cropSIM_depth = SIM_depth(cropSIM_ind)+final_depth;
+
+cropvid_ind = find(CR_depth_vid <= -final_depth+max_height);
+cropCR_depth_vid = CR_depth_vid(cropvid_ind)+final_depth;
+cropCRpos_time_vid = CRpos.time_seconds(cropvid_ind)-CRpos.time_seconds(cropvid_ind(1));
+
+cropdepth_ind = find(-depth_data <= -final_depth+max_height);
+cropdepth_data = -depth_data(cropdepth_ind)+final_depth;
+croptime_data = time_data(cropdepth_ind)-time_data(cropdepth_ind(1));
+
+figure
+h1 = plot([0 max(croptime_data)],[20 20],'g--','LineWidth',3);
+hold on
+h2 = plot(cropSIM_t,cropSIM_depth,'b','LineWidth',3);
+h3 = plot(cropCRpos_time_vid,cropCR_depth_vid,'k^','MarkerSize',8,'MarkerFaceColor','k');
+err_h2 = errorbar(cropCRpos_time_vid,cropCR_depth_vid,uncert_depth_vid(cropvid_ind),'k');
+h4 = plot(croptime_data,cropdepth_data,'r.','MarkerSize',15);
+err_h = errorbar(croptime_data,cropdepth_data,uncert_depth(cropdepth_ind),'r');
+set(err_h,'LineStyle','none');
+set(err_h2,'LineStyle','none');
+err_h_Children = get(err_h,'Children');
+set(err_h_Children(1),'LineWidth',1.5);
+set(err_h_Children(2),'LineWidth',1.5);
+err_h2_Children = get(err_h2,'Children');
+set(err_h2_Children(1),'LineWidth',1.5);
+set(err_h2_Children(2),'LineWidth',1.5);
+xlabel('Time, s')
+ylabel('Height above target depth, cm')
+grid on
+ylim([0 max_height])
+xlim([0 max(croptime_data)])
+legend([h4 h3 h2 h1],'Range-finder Distance Measurements','Height Measurements From Video','Expected Performance From Model','20cm Above Target Depth')
+
 % Plot the residuals ======================================================
 sim_interp = griddedInterpolant(SIM_t,SIM_depth,'linear');
 RF_res = (-depth_data) - sim_interp(time_data);
@@ -151,3 +188,29 @@ grid on
 legend([h2 h1],'Calculated Speed From Range-finder Data','Expected Performance From Model')
 % ylim([-final_depth 0])
 % xlim([0 max(time_data)])
+
+% Plot the cropped descent rate data ======================================
+t_crop = time_data(cropdepth_ind(1));
+
+cropSIM_DR_ind = find(SIM_t >= t_crop);
+cropSIM_t = SIM_t(cropSIM_DR_ind) - SIM_t(cropSIM_DR_ind(1));
+cropSIM_DR = SIM_DR(cropSIM_DR_ind);
+
+cropDR_ind = find(DR_time_vec >= t_crop);
+cropDR_time_vec = DR_time_vec(cropDR_ind) - DR_time_vec(cropDR_ind(1));
+cropdescent_rate = descent_rate(cropDR_ind);
+
+figure
+h1 = stairs(cropSIM_t,cropSIM_DR,'b','LineWidth',3);
+hold on
+h2 = plot(cropDR_time_vec,cropdescent_rate,'r.','MarkerSize',15);
+err_h2 = errorbar(cropDR_time_vec,cropdescent_rate,uncert_DR(cropDR_ind),'r');
+set(err_h2,'LineStyle','none');
+err_h2_Children = get(err_h2,'Children');
+set(err_h2_Children(1),'LineWidth',1.5);
+set(err_h2_Children(2),'LineWidth',1.5);
+xlabel('Time, s')
+ylabel('Descent Rate, cm/s')
+xlim([0 max(croptime_data)])
+grid on
+legend([h2 h1],'Calculated Speed From Range-finder Data','Expected Performance From Model')
