@@ -102,10 +102,10 @@ while ~passFailFlag && time_elapsed < timeout_dur && ~stop_flag
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
                 fprintf('%.2f s: %s\n',time_elapsed,response);
                 
-                %commented out for debugging
-                %if strcmp(commandMod,'L') || strcmp(commandMod,'R')
-                    %fprintf(driveDataFID,'%.2f \t %s\n',time_elapsed,response);
-                %end
+%                 commented out for debugging
+%                 if strcmp(commandMod,'F') || strcmp(commandMod,'B')
+%                     fprintf(driveDataFID,'%.2f \t %s\n',time_elapsed,response);
+%                 end
                 
                 % Make sure we got back the appropriate response
                 if ~isempty(strfind(response,'$DP'))
@@ -141,30 +141,30 @@ while ~passFailFlag && time_elapsed < timeout_dur && ~stop_flag
                 
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
                 
-                if ~(commandMod == 'U')
-                     % See if we got the 'Pass' response
-                if ~isempty(strfind(response,'$RUP'))
-                    passFailFlag = 1;
-                elseif ~isempty(strfind(response,'$RUF')) % A 'Failure' response
-                    passFailFlag = 0;
-                    break
-                else
-%                     disp(response)
-                end
-                else
-                fprintf('%.2f s: %s\n',time_elapsed,response);
-                
-                fprintf(rappelDataFID,'%.2f \t %s\n',time_elapsed,response);
-                
-                % See if we got the 'Pass' response
-                if ~isempty(strfind(response,'$R0P'))
-                    passFailFlag = 1;
-                elseif ~isempty(strfind(response,'$R0F')) % A 'Failure' response
-                    passFailFlag = 0;
-                    break
-                else
-%                     disp(response)
-                end
+                if strcmp(commandMod,'U') % If it's an auto-return command
+                    % See if we got the 'Pass' response
+                    if ~isempty(strfind(response,'$RUP'))
+                        passFailFlag = 1;
+                    elseif ~isempty(strfind(response,'$RUF')) % A 'Failure' response
+                        passFailFlag = 0;
+                        break
+                    else
+                        %                     disp(response)
+                    end
+                else % Otherwise it's an auto-rappel or auto-spool
+                    fprintf('%.2f s: %s\n',time_elapsed,response);
+                    
+                    fprintf(rappelDataFID,'%.2f \t %s\n',time_elapsed,response);
+                    
+                    % See if we got the 'Pass' response
+                    if ~isempty(strfind(response,'$R0P'))
+                        passFailFlag = 1;
+                    elseif ~isempty(strfind(response,'$R0F')) % A 'Failure' response
+                        passFailFlag = 0;
+                        break
+                    else
+                        %                     disp(response)
+                    end
                 end
             case 'S' % STATUS REQUEST
                 % For now this functionality is not yet implemented on the
