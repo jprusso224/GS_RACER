@@ -102,9 +102,10 @@ while ~passFailFlag && time_elapsed < timeout_dur && ~stop_flag
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
                 fprintf('%.2f s: %s\n',time_elapsed,response);
                 
-                if strcmp(commandMod,'L') || strcmp(commandMod,'R')
-                    fprintf(driveDataFID,'%.2f \t %s\n',time_elapsed,response);
-                end
+                %commented out for debugging
+                %if strcmp(commandMod,'L') || strcmp(commandMod,'R')
+                    %fprintf(driveDataFID,'%.2f \t %s\n',time_elapsed,response);
+                %end
                 
                 % Make sure we got back the appropriate response
                 if ~isempty(strfind(response,'$DP'))
@@ -139,6 +140,18 @@ while ~passFailFlag && time_elapsed < timeout_dur && ~stop_flag
             case 'R' % RAPPELLING COMMAND
                 
                 response = fscanf(gsSerialBuffer,'%s'); % Get the response string
+                
+                if ~(commandMod == 'U')
+                     % See if we got the 'Pass' response
+                if ~isempty(strfind(response,'$RUP'))
+                    passFailFlag = 1;
+                elseif ~isempty(strfind(response,'$RUF')) % A 'Failure' response
+                    passFailFlag = 0;
+                    break
+                else
+%                     disp(response)
+                end
+                else
                 fprintf('%.2f s: %s\n',time_elapsed,response);
                 
                 fprintf(rappelDataFID,'%.2f \t %s\n',time_elapsed,response);
@@ -152,7 +165,7 @@ while ~passFailFlag && time_elapsed < timeout_dur && ~stop_flag
                 else
 %                     disp(response)
                 end
-                
+                end
             case 'S' % STATUS REQUEST
                 % For now this functionality is not yet implemented on the
                 % MR or CR so just output simulated responses -- 1/19/15
